@@ -3,6 +3,7 @@ Adore-Datatables Road Map
 Features Under Consideration
 
 * JQueryUI Datatables Styling
+	* Option to change jQueryUI Themes
 * Bootstrap Datatables Styling
 * Select Table from Database
 * Database Tables Options
