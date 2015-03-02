@@ -1,1 +1,10 @@
-Roadmap Under Consideration
+Adore-Datatables Road Map
+
+Features Under Consideration
+
+* JQueryUI Datatables Styling
+* Bootstrap Datatables Styling
+* Select Table from Database
+* Database Tables Options
+	* Download Complete data
+	* Server Side Data  
