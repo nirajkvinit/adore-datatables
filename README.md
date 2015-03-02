@@ -11,6 +11,9 @@ Using this wordpress plugin, you can easily integrate Datatables in your wordpre
 
 ******************************Installation Guide******************************
 1. Download the plugin.
+
 2. Upload and install the plugin.
+
 3. Activate the plugin
+
 4. In any page or post use the shortcode [adt_demo_datatables] to load the demo datatable
