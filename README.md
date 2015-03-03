@@ -24,6 +24,6 @@ Using this wordpress plugin, you can easily make any table into Datatables in yo
 
 * Add the dynamically generated datatable to anywhere in the page/post by shortcode. 
 
- # Features Requests
+# Features Requests
  
 * Please create a ticket in the github page to request for features.
