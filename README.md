@@ -23,5 +23,3 @@ Pending Work
 
 * After successful implementation of features, submit this to wordpress repository.
 
-
-Aptana Changes
