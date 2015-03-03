@@ -1,6 +1,16 @@
 
-0.0.1
-
-Release Date	02/03/2015
+0.0.1	Release Date	02/03/2015
+------------------------------------------------------------------------
 * Initial Release
 * Sample Datatable Plugin
+* Demo Table with Data
+* Demo Datatable shortcode [adt_demo_datatables]
+
+0.0.2	Release Date	03/03/2015
+------------------------------------------------------------------------
+* Removing jqueryui, instead using vanila datatables cdn
+* Fixed Network Error Bug (Using CDN Assets instead of Plugin assets)
+* Removed bPaginate and bJQueryUI as this is a vanila demo
+* Plugin folder was renamed to append "-master" as github appends "-master" for the project. However, this will not be an issue
+  as the code has been changed to reflect the url of the plugin folder irrespective of its name.
+ 

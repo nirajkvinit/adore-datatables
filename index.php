@@ -3,22 +3,20 @@
 Plugin Name: Adore Datatables
 Plugin URI: https://github.com/adoreits/adore-datatables
 Description: Adore Datatables (Wordpress and Datatables Integration Project)
-Version: 0.0.1
+Version: 0.0.2
 Author: Niraj Kumar (Adore ITS)
 Author URI: http://www.adoreits.com/
 */
 
-define("ADORE_DATATABLES_PLUGIN_URL", WP_PLUGIN_URL ."/adore-datatables");
-
 define("ADT_DEMO_TABLE_NAME", "adt_demo_table");
 
 include_once('php/scripts_loader.php');
-
 include_once('php/demo_datatables.php');
-
 
 /**
  * Create Demo table and fill with data on plugin activation
+ * This may generate error/notice in some installation. Need to investigate the issue.
+ * No harm done though.
  */
 register_activation_hook( __FILE__, 'fn_create_adt_table' );
 register_activation_hook( __FILE__, 'fn_install_adt_data' );

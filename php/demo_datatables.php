@@ -8,7 +8,7 @@ function fn_adt_demo_datatables()
 	
 	$str_table='
 		<h3>Adore Datatables Demo</h3>
-		<table class="adt_demo_datatables">
+		<table class="display adt_demo_datatables" cellspacing="0" width="100%">
 			<thead>
 				<tr>
 					<th>Engine</th>

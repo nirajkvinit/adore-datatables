@@ -10,6 +10,7 @@ Using this wordpress plugin, you can easily integrate Datatables in your wordpre
 * After successful implementation of features, submit this to wordpress repository.
 
 ******************************Installation Guide******************************
+
 1. Download the plugin.
 
 2. Upload and install the plugin.

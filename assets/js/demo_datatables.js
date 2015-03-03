@@ -2,25 +2,14 @@ $=jQuery;
 jQuery(document).ready(function($) 
 {
 	$adt_demo_datatable=$(".adt_demo_datatables").dataTable(
-	{	                
-        "bJQueryUI": true,
-        "bAutoWidth" : false,
-        "bPaginate": true,
+	{
+        "bAutoWidth" : true,
         "bProcessing": true,
 	    "bServerSide": true,
 	    "sAjaxSource": AdoreDTAjax.ajaxurl+'?action=fn_adt_demo_loader_ajax',	     
 	    "bDeferRender": true,
 	    "fnServerData": fnDataTablesPipeline,	    
-	    "pagingType": "full_numbers",
-	    //"sDom": '<"top"l>rt<"bottom"ip><"clear">',
-	    "aoColumnDefs": [
-                    		/*{ "bVisible": false, "aTargets": [ 3, 6, 7, 8, 9, 11, 12, 13] },
-                    		{ "bSearchable": false, "aTargets": [0,4,5,9,10,11,12,13, 14]},
-                    		{ "sClass": "lib_file_name_limit", "aTargets": [1] }*/
-        				],		
-        "fnRowCallback": function( nRow, aData, iDisplayIndex ) 
-         {         	
-	     }
+	    "pagingType": "full_numbers"
     });
 });
 
