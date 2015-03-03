@@ -1,9 +1,9 @@
 # adore-datatables
-Adore Datatables (Wordpress and Datatables Integration Project).
+# Adore Datatables (Wordpress and Datatables Integration Project).
 
-Using this wordpress plugin, you can easily integrate Datatables in your wordpress pages/posts.
+Using this wordpress plugin, you can easily make any table into Datatables in your wordpress pages/posts.
 
-******************************Installation Guide******************************
+# Installation Guide
 
 1. Download the plugin.
 
@@ -14,12 +14,16 @@ Using this wordpress plugin, you can easily integrate Datatables in your wordpre
 4. In any page or post use the shortcode [adt_demo_datatables] to load the demo datatable
 
 
-Pending Work
---------------------------------------------------------------------------------
+# Features
 
-* Create Roadmaps and Changelog
+* Create Datatable based on your existing database tables/views
 
-* Create Related Plugin Demo Site
+* Make it Server Side (Ajax) or a Normal HTML Table
 
-* After successful implementation of features, submit this to wordpress repository.
+* Universal or Individual Column Filtering
 
+* Add the dynamically generated datatable to anywhere in the page/post by shortcode. 
+
+ # Features Requests
+ 
+* Please create a ticket in the github page to request for features.
