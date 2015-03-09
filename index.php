@@ -12,6 +12,7 @@ define("ADT_DEMO_TABLE_NAME", "adt_demo_table");
 
 include_once('php/scripts_loader.php');
 include_once('php/demo_datatables.php');
+include_once('php/admin-settings.php');
 
 /**
  * Create Demo table and fill it with data on plugin activation
@@ -25,9 +26,11 @@ register_activation_hook( __FILE__, 'fn_install_adt_data' );
 
 function fn_create_adt_table() 
 {
-	global $wpdb;	
+	global $wpdb;
+	
+	$table_prefix=$wpdb->prefix;
 
-	$table_name = $wpdb->prefix.ADT_DEMO_TABLE_NAME;
+	$table_name = $table_prefix.ADT_DEMO_TABLE_NAME;
 	
 	//query to delete any existing table;
 	$wpdb->query("DROP TABLE IF EXISTS $table_name");	
@@ -56,7 +59,18 @@ function fn_create_adt_table()
 	) $charset_collate;";
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-	dbDelta( $sql );	
+	dbDelta( $sql );
+	
+	$str_sql="
+		CREATE TABLE IF NOT EXISTS adore_datatable_settings (
+			adt_id int(11) NOT NULL AUTO_INCREMENT,
+			adt_table_name text NOT NULL,
+			adt_table_slug text NOT NULL,
+			adt_table_settings text NOT NULL
+			PRIMARY KEY  (adt_id)
+		) $charset_collate;
+	";
+	dbDelta($str_sql);
 }
 
 function fn_install_adt_data() {
@@ -126,4 +140,20 @@ function fn_install_adt_data() {
 				( 'Other browsers', 'All others', '', NULL, 'U' )
 	";
 	$wpdb->query($str_query);
+}
+
+if(!function_exists('fn_applog'))
+{
+	function fn_applog($str_val)
+	{
+		if(empty($str_val))
+		{
+			$str_val='\n Empty call';
+		}
+		$str_val= "\n".$str_val;
+		$my_file = plugin_dir_path(__FILE__).'applog.txt';
+		$handle = fopen($my_file, 'a') or die('Cannot open file:  '.$my_file);
+		fwrite($handle, $str_val);
+		fclose($handle);
+	}
 }
