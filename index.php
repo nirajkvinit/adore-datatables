@@ -9,7 +9,7 @@ Author URI: http://www.adoreits.com/
 */
 
 define("ADT_DEMO_TABLE_NAME", "adt_demo_table");
-
+define("PLUGIN_ADMIN_PAGE_SLUG", "adore-datatables");
 include_once('php/scripts_loader.php');
 include_once('php/demo_datatables.php');
 include_once('php/admin-settings.php');
@@ -140,6 +140,14 @@ function fn_install_adt_data() {
 				( 'Other browsers', 'All others', '', NULL, 'U' )
 	";
 	$wpdb->query($str_query);
+}
+
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'fn_adt_add_settings_link' );
+function fn_adt_add_settings_link ($links) 
+{
+	//Ref. http://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
+	$links[] = '<a href="'.admin_url('admin.php?page='.PLUGIN_ADMIN_PAGE_SLUG).'">Settings</a>';
+	return $links;
 }
 
 if(!function_exists('fn_applog'))

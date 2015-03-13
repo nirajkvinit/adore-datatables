@@ -14,7 +14,7 @@ Using this wordpress plugin, you can easily make any table into Datatables in yo
 4. In any page or post use the shortcode [adt_demo_datatables] to load the demo datatable
 
 
-# Features
+# Features (Plugin is still under construction! Please wait for the beta release 0.0.3 for full funcationality!)
 
 * Create Datatable based on your existing database tables/views
 

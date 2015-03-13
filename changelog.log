@@ -14,3 +14,24 @@
 * Plugin folder was renamed to append "-master" as github appends "-master" for the project. However, this will not be an issue
   as the code has been changed to reflect the url of the plugin folder irrespective of its name.
  
+0.0.3	Release Date	<not yet released>
+------------------------------------------------------------------------
+* Adore Datatables Settings Page created in the wordpress Admin Control Panel.
+* Dynamically read all tables/views in the database and let user create Datatable based on a selected table/view.
+* Option provided to show/hide coulmns of a table/view in the datatable.
+* Option for Server Side/HTML Datatable
+* Option for adding jQueryUI or Bootstrap style
+
+
+
+
+
+
+
+
+
+
+
+
+Roadmap
+------------------------------------------------------------------------

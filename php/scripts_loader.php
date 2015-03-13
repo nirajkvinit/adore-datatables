@@ -43,11 +43,23 @@ function fn_adt_register_javascripts()
 {
 	//scripts registration here
 	$static_version='1.1'; //used for js which will never be modified	
-	$dynamic_version='1.1'; //used for js which will be modified		
+	$dynamic_version='1.2'; //used for js which will be modified		
 	
 	//Web Assets
 	wp_register_script('datatable_js', 'http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js', array(jquery), $static_version,TRUE);
 	wp_register_script('demo_datatable_js', plugins_url('/assets/js/demo_datatables.js', dirname(__FILE__) ), array(jquery), $dynamic_version,TRUE); //Ref. http://codex.wordpress.org/Function_Reference/plugins_url
 	
 	wp_register_script('datatables_admin_js', plugins_url('/assets/js/adore-datatables-admin.js', dirname(__FILE__) ), array(jquery), $dynamic_version,TRUE); //Ref. http://codex.wordpress.org/Function_Reference/plugins_url	
+}
+
+add_action('admin_enqueue_scripts', 'fn_adt_admin_load_scripts');
+function fn_adt_admin_load_scripts($hook) 
+{ 
+	global $adt_settings_page;	
+ 
+	if( $hook != $adt_settings_page ) //ref. https://pippinsplugins.com/loading-scripts-correctly-in-the-wordpress-admin/
+	{
+		return;		
+	}	
+ 	wp_enqueue_script('datatables_admin_js');
 }
