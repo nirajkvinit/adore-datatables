@@ -1,4 +1,0 @@
-
-H:/xampp_new_php/htdocs/adore-datatables/wp-content/plugins/adore-datatables/assets/js/adt_custom_js.js
-H:\xampp_new_php\htdocs\adore-datatables\wp-content\plugins\adore-datatables\assets\js/adt_custom_js.js
-H:/xampp_new_php/htdocs/adore-datatables/wp-content/plugins/adore-datatables/assets/js/adt_custom_js.js

@@ -340,6 +340,68 @@ jQuery(document).ready(function($)
         });
     	
     });
+    
+    $("#cmd_adt_settings_save").click(function(event)
+    {
+    	var $button=$(this);
+    	var $loader=$("#adt_settings_save_loader");
+    	$result_area='div_adt_settings_save_result';
+    	
+    	var $adt_settings_nonce=$("#hidden_adt_settings_nonce").val();
+    	var $adt_style=$("#select_adt_styles option:selected").val();
+    	var $jqueryui_theme=$("#select_adt_jquery_ui_theme option:selected").val();
+    	
+    	$load_bootstrap='disabled';
+    	$load_jqueryui='disabled';
+    	
+    	if($("#chk_adt_load_bootstrap").is(":checked"))
+    	{
+    		$load_bootstrap='enabled';    		
+    	}
+    	if($("#chk_adt_load_jqueryui").is(":checked"))
+    	{
+    		$load_jqueryui='enabled';    		
+    	}
+    	
+    	$adt_table_save_loader=$("#adt_table_save_loader");    	
+    	$adt_table_save_loader.show();
+    	
+    	$button.hide();
+    	
+    	var submit_data = 
+		{
+			action: 'fn_adt_settings_save_ajax',
+			adt_settings_nonce:$adt_settings_nonce,
+			adt_style:$adt_style,
+			jqueryui_theme:$jqueryui_theme,
+			load_bootstrap:$load_bootstrap,
+			load_jqueryui:$load_jqueryui
+		};
+		jQuery.post(ajaxurl, submit_data, function(response)
+        {
+        	$("#"+$result_area).html(response);
+        	
+        	var obj = $.parseJSON(response);				
+			var $result=obj.result;
+			var $result_message=obj.result_message;
+			
+        	if($result=='error')
+        	{
+        		fn_adt_show_info_msg($result_message, $result_area, 'error');
+        	}
+        	else
+        	{
+        		fn_adt_show_info_msg($result_message, $result_area, 'success');
+        	}
+        	
+        }).complete(function()
+        {
+        	$adt_table_save_loader.hide();
+        	$button.show();
+        });
+    	
+    	
+    });
 });
 
 var $time_out_var=null;

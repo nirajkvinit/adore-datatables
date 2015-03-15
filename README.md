@@ -3,6 +3,8 @@
 
 Using this wordpress plugin, you can easily make any table into Datatables in your wordpress pages/posts.
 
+# Current Version: 0.0.2 (Beta Version)
+
 # Installation Guide
 
 1. Download the plugin.

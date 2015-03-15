@@ -7,6 +7,8 @@
 * Allow user to include Custom CSS
 * Allow user to include Custom jQuery or JS 
 * Allow shortcode to convert any existing HTML table to Datatable
+* Allow an existing Adore Datatable instance to be updated in the control panel.
+* Allow deletion of an Adore Datatable instance
 
 
 # Features Under Consideration
