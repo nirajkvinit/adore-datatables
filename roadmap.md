@@ -6,6 +6,7 @@
 * Implement Table Tools in Datatables
 * Allow user to include Custom CSS
 * Allow user to include Custom jQuery or JS 
+* Allow shortcode to convert any existing HTML table to Datatable
 
 
 # Features Under Consideration

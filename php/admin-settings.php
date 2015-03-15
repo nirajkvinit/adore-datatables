@@ -1,7 +1,5 @@
 <?php
 
-
-
 add_action('admin_menu', 'fn_adt_settings_menu');
 function fn_adt_settings_menu() 
 {	
@@ -105,39 +103,306 @@ function fn_adt_admin_main_content()
 
 function fn_adt_admin_css_content()
 {
-	$str_return='
-		<br />
-		<p class="about-description">Write your custom CSS code here. This code will be loaded on every page/post where Adore Datatable instance exists.</p>
-		<textarea name="" id="txt_adt_custom_css" style="width:100%;" rows="20"></textarea>
-		<table width="100%">
-			<tr>
-				<td><img id="adt_custom_css_save_loader" src="'.plugins_url('/assets/images/loader.gif', dirname(__FILE__)).'" style="display:none;"/></td>
-				<td align="right"><input type="button" class="button button-primary" id="cmd_adt_datatable_save_css" value="Save CSS" /></td>
-			</tr>
-		</table>
+	//$adt_css_file_name=ADT_PLUGIN_DIR_PATH.'assets/css/adt_custom_css.css';//ADT_PLUGIN_DIR_PATH
+	//$adt_css_folder_path=ADT_PLUGIN_DIR_PATH.'assets/css/';//ADT_PLUGIN_DIR_PATH
+	
+	//refrence http://www.webdesignerdepot.com/2012/08/wordpress-filesystem-api-the-right-way-to-operate-with-local-files/
+	
+	$form_url = 'admin.php?page='.PLUGIN_ADMIN_PAGE_SLUG.'&tab=css';
+	$output = $error = '';
+	
+	/**
+	 * write submitted text into file (if any)
+	 * or read the text from file - if there is no submission
+	 **/
+	if(isset($_POST['txt_adt_css'])){//new submission
+	    
+	    if(false === ($output = fn_adt_css_write($form_url))){
+	        return; //we are displaying credentials form - no need for further processing
+	    
+	    } elseif(is_wp_error($output)){
+	        $error = $output->get_error_message();
+	        $output = '';
+	    }
+	    
+	} else {//read from file
+	    
+	    if(false === ($output = fn_adt_css_read($form_url))){
+	        return; //we are displaying credentials form no need for further processing
+	    
+	    } elseif(is_wp_error($output)) {
+	        $error = $output->get_error_message();
+	        $output = '';
+	    }
+	}
+	
+	$output = $output; //escaping for printing	
+	
+	$str_error='';
+	if($error)
+	{
+		$str_error='<div class="error below-h2">'.$error.'</div>';
+	}
+	
+	$str_return='		
+		<div class="postbox">
+		    <h3 class="hndle"><span>Custom Adore Datatables CSS (Global)</span></h3>
+		    <div class="inside">
+		        <p class="alternate">Write your custom CSS here. This CSS will be loaded on every page/post where Adore Datatable instance exists.</p>
+		        '.$str_error.'
+				<form method="post" action="">
+					'.wp_nonce_field('adt_css_save_nonce').'
+					<fieldset class="form-table">
+					    <label for="txt_adt_css">Write your custom CSS Below</label><br>
+					    <textarea id="txt_adt_css" name="txt_adt_css" rows="8" class="large-text">'.$output.'</textarea>
+					</fieldset>					
+					<input type="submit" value="Save CSS" class="button button-primary" id="cmd_adt_css_submit" name="cmd_adt_css_submit">
+				</form>
+		    </div>
+		</div>
 	';
 	return $str_return;		
 }
 
+/**
+ * Initialize Filesystem object
+ *
+ * @param str $form_url - URL of the page to display request form
+ * @param str $method - connection method
+ * @param str $context - destination folder
+ * @param array $fields - fileds of $_POST array that should be preserved between screens
+ * @return bool/str - false on failure, stored text on success
+ **/
+function fn_adt_filesystem_init($form_url, $method, $context, $fields = null) {
+    global $wp_filesystem;
+    
+    
+    /* first attempt to get credentials */
+    if (false === ($creds = request_filesystem_credentials($form_url, $method, false, $context, $fields))) {
+        
+        /**
+         * if we comes here - we don't have credentials
+         * so the request for them is displaying
+         * no need for further processing
+         **/
+        return false;
+    }
+    
+    /* now we got some credentials - try to use them*/        
+    if (!WP_Filesystem($creds)) {
+        
+        /* incorrect connection data - ask for credentials again, now with error message */
+        request_filesystem_credentials($form_url, $method, true, $context);
+        return false;
+    }
+    
+    return true; //filesystem object successfully initiated
+}
+
+/**
+ * Perform writing into file
+ *
+ * @param str $form_url - URL of the page to display request form
+ * @return bool/str - false on failure, stored text on success
+ **/
+function fn_adt_css_write($form_url)
+{
+    global $wp_filesystem;
+    
+    check_admin_referer('adt_css_save_nonce');
+    
+    $csstext = esc_textarea($_POST['txt_adt_css']); //sanitize the input
+    $form_fields = array('txt_adt_css'); //fields that should be preserved across screens
+    $method = ''; //leave this empty to perform test for 'direct' writing
+    
+    $context = ADT_PLUGIN_DIR_PATH.'assets/css/'; //target folder
+            
+    $form_url = wp_nonce_url($form_url, 'adt_css_save_nonce'); //page url with nonce value
+    
+    if(!fn_adt_filesystem_init($form_url, $method, $context, $form_fields))
+        return false; //stop further processign when request form is displaying
+    
+    
+    /*
+     * now $wp_filesystem could be used
+     * get correct target file first
+     **/
+    $target_dir = $wp_filesystem->find_folder($context);
+    $target_file = trailingslashit($target_dir).'adt_custom_css.css';
+       
+    
+    /* write into file */
+    if(!$wp_filesystem->put_contents($target_file, $csstext, FS_CHMOD_FILE)) 
+        return new WP_Error('writing_error', 'Error when writing file'); //return error object      
+    
+    return $csstext;
+}
+
+/**
+ * Read text from file
+ *
+ * @param str $form_url - URL of the page where request form will be displayed
+ * @return bool/str - false on failure, stored text on success
+ **/
+function fn_adt_css_read($form_url)
+{
+    global $wp_filesystem;
+
+    $csstext = '';
+    
+    $form_url = wp_nonce_url($form_url, 'adt_css_save_nonce');
+    $method = ''; //leave this empty to perform test for 'direct' writing
+    
+    //$adt_css_folder_path=ADT_PLUGIN_DIR_PATH.'assets/css/';//ADT_PLUGIN_DIR_PATH       
+    $context = ADT_PLUGIN_DIR_PATH.'assets/css/'; //target folder
+    
+    if(!fn_adt_filesystem_init($form_url, $method, $context))
+        return false; //stop further processign when request formis displaying
+    
+    
+    /*
+     * now $wp_filesystem could be used
+     * get correct target file first
+     **/
+    $target_dir = $wp_filesystem->find_folder($context);
+    $target_file = trailingslashit($target_dir).'adt_custom_css.css';
+    
+    
+    /* read the file */
+    if($wp_filesystem->exists($target_file)){ //check for existence
+        
+        $csstext = $wp_filesystem->get_contents($target_file);
+        if(!$csstext)
+            return new WP_Error('reading_error', 'File is empty.'); //return error object           
+        
+    }
+    
+    return $csstext;    
+}
+
 function fn_adt_admin_js_content()
 {
+	$form_url = 'admin.php?page='.PLUGIN_ADMIN_PAGE_SLUG.'&tab=javascript';
+	$output = $error = '';
+	
+	/**
+	 * write submitted text into file (if any)
+	 * or read the text from file - if there is no submission
+	 **/
+	if(isset($_POST['txt_adt_js'])){//new submission
+	    
+	    if(false === ($output = fn_adt_js_write($form_url))){
+	        return; //we are displaying credentials form - no need for further processing
+	    
+	    } elseif(is_wp_error($output)){
+	        $error = $output->get_error_message();
+	        $output = '';
+	    }
+	    
+	} else {//read from file
+	    
+	    if(false === ($output = fn_adt_js_read($form_url))){
+	        return; //we are displaying credentials form no need for further processing
+	    
+	    } elseif(is_wp_error($output)) {
+	        $error = $output->get_error_message();
+	        $output = '';
+	    }
+	}
+	
+	$output = $output; //escaping for printing	
+	
+	$str_error='';
+	if($error)
+	{
+		$str_error='<div class="error below-h2">'.$error.'</div>';
+	}
 	$str_return='
-		<br />
 		<div class="postbox">
 		    <h3 class="hndle"><span>Custom Adore Datatables Javascript (Global)</span></h3>
 		    <div class="inside">
-		        <p class="about-description">Write your custom Javascript code here. This code will be loaded on every page/post where Adore Datatable instance exists.</p>
-				<textarea name="" id="txt_adt_custom_javascript" style="width:100%;" rows="20"></textarea>
-				<table width="100%">
-					<tr>
-						<td><img id="adt_custom_js_save_loader" src="'.plugins_url('/assets/images/loader.gif', dirname(__FILE__)).'" style="display:none;"/></td>
-						<td align="right"><input type="button" class="button button-primary" id="cmd_adt_datatable_save_js" value="Save Javascript" /></td>
-					</tr>
-				</table>
+		        <p class="alternate">Write your custom JS Code here. This Javascript will be loaded on every page/post where Adore Datatable instance exists.</p>
+		        '.$str_error.'
+				<form method="post" action="">
+					'.wp_nonce_field('adt_js_save_nonce').'
+					<fieldset class="form-table">
+					    <label for="txt_adt_js">Write your custom Javascript Code Below</label><br>
+					    <textarea id="txt_adt_js" name="txt_adt_js" rows="8" class="large-text">'.$output.'</textarea>
+					</fieldset>					
+					<input type="submit" value="Save Javascript" class="button button-primary" id="cmd_adt_js_submit" name="cmd_adt_js_submit">
+				</form>
 		    </div>
 		</div>
 	';
 	return $str_return;	
+}
+
+function fn_adt_js_read($form_url)
+{
+    global $wp_filesystem;
+
+    $jstext = '';
+    
+    $form_url = wp_nonce_url($form_url, 'adt_js_save_nonce');
+    $method = ''; //leave this empty to perform test for 'direct' writing
+           
+    $context = ADT_PLUGIN_DIR_PATH.'assets/js/'; //target folder
+    
+    if(!fn_adt_filesystem_init($form_url, $method, $context))
+        return false; //stop further processign when request formis displaying
+    
+    
+    /*
+     * now $wp_filesystem could be used
+     * get correct target file first
+     **/
+    $target_dir = $wp_filesystem->find_folder($context);
+    $target_file = trailingslashit($target_dir).'adt_custom_js.js';
+    
+    
+    /* read the file */
+    if($wp_filesystem->exists($target_file))
+    { //check for existence        
+        $jstext = $wp_filesystem->get_contents($target_file);
+        if(!$jstext)
+            return new WP_Error('reading_error', 'File is empty!'); //return error object           
+        
+    }
+    
+    return $jstext;    
+}
+
+function fn_adt_js_write($form_url)
+{
+    global $wp_filesystem;
+    
+    check_admin_referer('adt_js_save_nonce');
+    
+    $jstext = esc_textarea($_POST['txt_adt_js']); //sanitize the input
+    $form_fields = array('txt_adt_js'); //fields that should be preserved across screens
+    $method = ''; //leave this empty to perform test for 'direct' writing
+    
+    $context = ADT_PLUGIN_DIR_PATH.'assets/js/'; //target folder
+            
+    $form_url = wp_nonce_url($form_url, 'adt_js_save_nonce'); //page url with nonce value
+    
+    if(!fn_adt_filesystem_init($form_url, $method, $context, $form_fields))
+        return false; //stop further processign when request form is displaying
+    
+    
+    /*
+     * now $wp_filesystem could be used
+     * get correct target file first
+     **/
+    $target_dir = $wp_filesystem->find_folder($context);
+    $target_file = trailingslashit($target_dir).'adt_custom_js.js';
+       
+    
+    /* write into file */
+    if(!$wp_filesystem->put_contents($target_file, $jstext, FS_CHMOD_FILE)) 
+        return new WP_Error('writing_error', 'Error when writing file'); //return error object      
+    
+    return $jstext;
 }
 
 function fn_adt_admin_settings_content()
@@ -165,11 +430,31 @@ function fn_adt_admin_settings_content()
 				<td align="right"><label for="select_adt_styles" title="Datatable styles">Styling</label></td>
 				<td>'.$str_table_styles.'</td>
 			</tr>
+			<tr>
+				<td colspan="4"><p class="alternate">If any of your theme or other existing plugin already loads Bootstrap/jQueryUI files then do not load them here.</p><hr/></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label><input type="checkbox" id="chk_adt_custom_css_file" checked>Load Bootstrap</label></td>
+        		<td><label><input type="checkbox" id="chk_adt_custom_js_file" checked>Load jQuery</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<hr />
+					<div id="div_adt_settings_save_result"></div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<img id="adt_settings_save_loader" src="'.plugins_url('/assets/images/loader.gif', dirname(__FILE__)).'" style="display:none;"/>					
+				</td>
+				<td align="right"><input type="button" class="button button-primary" id="cmd_adt_datatable_settings_save" value="Save Settings" /></td>
+			</tr>
 		</table>
 	';
 	return $str_return;	
 }
-
 
 add_action('wp_ajax_fn_load_dt_settings_ajax', 'fn_load_dt_settings_ajax');
 
@@ -177,11 +462,12 @@ function fn_load_dt_settings_ajax()
 {
 	global $wpdb;
 	$adt_id=$_POST['adt_id'];
+	$slug=sanitize_text_field($_POST['slug']);
 	$str_return='';
 		
 	if(is_numeric($adt_id))
 	{
-		$str_return=fn_return_adt_form($adt_id);
+		$str_return=fn_return_adt_form($adt_id,$slug);
 	}
 	else if($adt_id=='create')
 	{
@@ -200,9 +486,20 @@ function fn_load_dt_settings_ajax()
 /**
  * Function to return datatable information for shortcode or for update or delete.
  */
-function fn_return_adt_form($adt_id)
+function fn_return_adt_form($adt_id,$slug)
 {
-	$str_return='Under Construction!';
+	$str_return='
+		<div>
+			<h2>Please use the following shortcode for this Datatable:
+				<br />
+				<code>[adore-datatables id="'.$adt_id.'"]</code>
+				<br />
+				Or
+				<br />
+				<code>[adore-datatables table="'.$slug.'"]</code>
+			</h2>
+		</div>
+	';
 	return $str_return;
 }
 

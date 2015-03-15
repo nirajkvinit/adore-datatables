@@ -13,7 +13,13 @@ jQuery(document).ready(function($)
 		{
 			$div_adt_settings_area.html('');
 			return;
-		}		
+		}
+				
+		$slug='';
+		if($val!='create')
+		{
+			$slug=$selected.data('slug');
+		}				
 		
 		$settings_loader.show();
     	
@@ -21,6 +27,7 @@ jQuery(document).ready(function($)
 		{
 			action: 'fn_load_dt_settings_ajax',			
 			adt_id:$val,
+			slug:$slug
 		};
 		jQuery.post(ajaxurl, submit_data, function(response)
         {
@@ -59,6 +66,7 @@ jQuery(document).ready(function($)
     });
     $("#div_adt_settings_area").on('click', "#cmd_create_adt_datatable", function()
     {
+    	var $button=$(this);
     	$result_area="div_adt_table_save_result_area";
     	$adt_nonce=$("#hidden_adt_save_nonce").val();
     	$datatable_name=$("#txt_adt_datatable_name").val();
@@ -272,9 +280,11 @@ jQuery(document).ready(function($)
     		return;
     	}
     	
-    	$adt_table_save_loader=$("#adt_table_save_loader");
-    	
+    	$adt_table_save_loader=$("#adt_table_save_loader");    	
     	$adt_table_save_loader.show();
+    	
+    	$button.hide();
+    	
     	var submit_data = 
 		{
 			action: 'fn_adt_table_save_ajax',
@@ -319,14 +329,14 @@ jQuery(document).ready(function($)
         		$('#select_adt_table').val($new_datatable_id);
         		setTimeout(function()
 				{
-					$('#select_adt_table').change();
-				},3000);
+					$('#select_adt_table').change();					
+				},1500);
         	}
-        	
         	
         }).complete(function()
         {
         	$adt_table_save_loader.hide();
+        	$button.show();
         });
     	
     });

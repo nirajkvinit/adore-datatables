@@ -3,8 +3,8 @@ add_shortcode('adt_demo_datatables', 'fn_adt_demo_datatables');
 
 function fn_adt_demo_datatables() 
 {
-	global $add_adt_scripts;
-	$add_adt_scripts = true;
+	global $add_demo_adt_scripts;
+	$add_demo_adt_scripts = true;
 	
 	$str_table='
 		<h3>Adore Datatables Demo</h3>
