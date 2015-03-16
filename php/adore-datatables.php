@@ -39,5 +39,8 @@ function fn_adore_datatables_maker($id,$table)
 	{
 		return '<div class="error">Error! Adore Datatable information not found in the database. Please check the shortcode tag.</div>';
 	}
+	
+	
+	
 	return 'Hello Adore Datatable. Adore Datatable is under construction! Please wait for the version 0.0.3';
 }
