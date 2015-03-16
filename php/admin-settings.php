@@ -72,13 +72,10 @@ function fn_adt_admin_main_content()
 	$str_sql="SELECT * FROM information_schema.tables WHERE table_schema = '".$wpdb->dbname."' AND table_name = 'adore_datatable_settings';";
 	
 	$settings_table_exist=$wpdb->get_results($str_sql);
+	
 	if(empty($settings_table_exist))
 	{
 		return 'Settings table does not exist.';
-	}
-	else 
-	{
-		return 'Settings table exist.';		
 	}
 	
 	$str_adt_options='
