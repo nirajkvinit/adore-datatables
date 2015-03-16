@@ -87,6 +87,9 @@ function fn_adt_admin_main_content()
 	';
 	
     $str_return='
+    	<br />
+    	<p class="about-description">Use the shortcode <code>[adt_demo_datatables]</code> in any page/post to checkout the demo. To create a new Adore Datatable instance, please use the form below:</p>
+    	<hr />
 		<table width="100%">
         	<tr>
         		<td align="right">Select or Create a Datatable:</td>
