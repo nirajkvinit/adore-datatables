@@ -53,28 +53,27 @@ function fn_create_adt_table()
 		UNIQUE KEY id (id)
 	) $charset_collate;";*/
 	
-	$sql="CREATE TABLE $table_name (
+	$sql="CREATE TABLE ".$table_name." (
 	  id int(10) NOT NULL AUTO_INCREMENT,
-	  engine varchar(255) NOT NULL default '',
-	  browser varchar(255) NOT NULL default '',
-	  platform varchar(255) NOT NULL default '',
-	  version float,
-	  grade varchar(20) NOT NULL default '',
+	  engine VARCHAR(255) NOT NULL default '',
+	  browser VARCHAR(255) NOT NULL default '',
+	  platform VARCHAR(255) NOT NULL default '',
+	  version FLOAT,
+	  grade VARCHAR(20) NOT NULL default '',
 	  PRIMARY KEY  (id)
-	) $charset_collate;";
+	) ".$charset_collate.";";
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	dbDelta( $sql );
 	
 	$str_sql="
-		CREATE TABLE IF NOT EXISTS adore_datatable_settings (
-			adt_id int(11) NOT NULL AUTO_INCREMENT,
-			adt_table_name text NOT NULL,
-			adt_table_slug text NOT NULL,
-			adt_table_settings text NOT NULL
+		CREATE TABLE IF NOT EXISTS ".adore_datatable_settings." (
+			adt_id INT NOT NULL AUTO_INCREMENT,
+			adt_table_name TEXT NOT NULL,
+			adt_table_slug TEXT NOT NULL,
+			adt_table_settings TEXT NOT NULL
 			PRIMARY KEY  (adt_id)
-		) $charset_collate;
-	";
+		) ".$charset_collate.";";
 	dbDelta($str_sql);
 }
 
