@@ -68,10 +68,10 @@ function fn_create_adt_table()
 	
 	$str_sql="
 		CREATE TABLE IF NOT EXISTS ".adore_datatable_settings." (
-			adt_id INT NOT NULL AUTO_INCREMENT,
+			adt_id INT(10) NOT NULL AUTO_INCREMENT,
 			adt_table_name TEXT NOT NULL,
 			adt_table_slug TEXT NOT NULL,
-			adt_table_settings TEXT NOT NULL
+			adt_table_settings TEXT NOT NULL,
 			PRIMARY KEY  (adt_id)
 		) ".$charset_collate.";";
 	fn_applog($str_sql);
