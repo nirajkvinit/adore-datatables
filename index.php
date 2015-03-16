@@ -74,7 +74,6 @@ function fn_create_adt_table()
 			adt_table_settings TEXT NOT NULL,
 			PRIMARY KEY  (adt_id)
 		) ".$charset_collate.";";
-	fn_applog($str_sql);
 	dbDelta($str_sql);
 }
 
