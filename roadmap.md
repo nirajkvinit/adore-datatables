@@ -1,5 +1,6 @@
 # Adore-Datatables Road Map (Random)
 -------------------------------------------------------------------------
+* Uninstalling the plugin will remove Adore Datatable Database entries.
 * Option for Individual Column Filter (Dynamically generated).
 * Allow table creation by uploading csv/xml/excel files.
 * Responsive Datatable

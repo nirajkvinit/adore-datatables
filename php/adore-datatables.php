@@ -39,16 +39,5 @@ function fn_adore_datatables_maker($id,$table)
 	{
 		return '<div class="error">Error! Adore Datatable information not found in the database. Please check the shortcode tag.</div>';
 	}
-	return 'Hello Datatable.';
+	return 'Hello Adore Datatable. Adore Datatable is under construction! Please wait for the version 0.0.3';
 }
-
-
-/*<!--<textarea name="" id="txt_adt_custom_css" style="width:100%;" rows="20">
-		</textarea>
-		<input type="hidden" id="hidden_adt_css_nonce" val="'.wp_nonce_field('adore-datatable-css').'" />
-		<table width="100%">
-			<tr>
-				<td><img id="adt_custom_css_save_loader" src="'.plugins_url('/assets/images/loader.gif', dirname(__FILE__)).'" style="display:none;"/></td>
-				<td align="right"><input type="button" class="button button-primary" id="cmd_adt_datatable_save_css" value="Save CSS" /></td>
-			</tr>
-		</table>-->*/
