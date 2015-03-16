@@ -67,6 +67,20 @@ function fn_adt_admin_main_content()
 {
 	global $wpdb;
 	
+	//check if the adore_datatable_settings table exist or not
+	
+	$str_sql="SELECT * FROM information_schema.tables WHERE table_schema = '".$wpdb->dbname."' AND table_name = 'adore_datatable_settings';";
+	
+	$settings_table_exist=$wpdb->get_results($str_sql);
+	if(empty($settings_table_exist))
+	{
+		return 'Settings table does not exist.';
+	}
+	else 
+	{
+		return 'Settings table exist.';		
+	}
+	
 	$str_adt_options='
 		<select id="select_adt_table">
 			<option value="select">Select a Datatable</option>
@@ -509,8 +523,6 @@ function fn_adt_table_save_ajax()
 	$datatable_array['columns_array']=$adt_column_data;
 	
 	$datatable_json=json_encode($datatable_array);
-	
-	fn_applog($datatable_json);
 	
 	$insert_array=array(
 		'adt_table_name'=>$datatable_name,
