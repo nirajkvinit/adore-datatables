@@ -43,15 +43,7 @@ function fn_create_adt_table()
 	$charset_collate = $wpdb->get_charset_collate();
 	
 	//create table with dbDelta
-	/*Example reference http://codex.wordpress.org/Creating_Tables_with_Plugins
-	 * $sql = "CREATE TABLE $table_name (
-		id mediumint(9) NOT NULL AUTO_INCREMENT,
-		time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		name tinytext NOT NULL,
-		text text NOT NULL,
-		url varchar(55) DEFAULT '' NOT NULL,
-		UNIQUE KEY id (id)
-	) $charset_collate;";*/
+	/*Example reference http://codex.wordpress.org/Creating_Tables_with_Plugins */
 	
 	$sql="CREATE TABLE ".$table_name." (
 	  id int(10) NOT NULL AUTO_INCREMENT,

@@ -501,6 +501,9 @@ function fn_adt_table_save_ajax()
 		die();
 	}
 	
+	//Sort the column array by user provided column position 
+	fn_sort_md_array_by_value($adt_column_data,'column_position');	
+	
 	$datatable_array=array();
 	
 	$datatable_array['html_table_id']=$html_table_id;
@@ -539,6 +542,25 @@ function fn_adt_table_save_ajax()
 	$result_array['result_message']='Adore Datatable Settings were saved! Please wait!';
 	echo json_encode($result_array);
 	die();
+}
+
+/**
+ * Function to sort multi-dimentional array by a value key
+ */
+function fn_sort_md_array_by_value(&$array, $key) 
+{
+	//ref. http://stackoverflow.com/questions/2699086/sort-multi-dimensional-array-by-value
+    $sorter=array();
+    $ret=array();
+    reset($array);
+    foreach ($array as $ii => $va) {
+        $sorter[$ii]=$va[$key];
+    }
+    asort($sorter);
+    foreach ($sorter as $ii => $va) {
+        $ret[$ii]=$array[$ii];
+    }
+    $array=$ret;
 }
 
 add_action('wp_ajax_fn_adt_settings_save_ajax', 'fn_adt_settings_save_ajax');

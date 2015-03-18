@@ -20,3 +20,4 @@
 * Get inspired by http://wpdatatables.com/
 * Get inspired by http://tablepress.org/
 * Integrate Foo Table
+* Clean speghatti code
