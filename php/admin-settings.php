@@ -118,6 +118,8 @@ function fn_adt_admin_main_content()
 function fn_adt_admin_settings_content()
 {
 	
+	
+	
 	$jquery_theme_array=array("smoothness","ui-lightness","ui-darkness","humanity","redmond","start","cupertino","trontastic",
 		"black-tie","blitzer","dark-hive","dot-luv","eggplant","excite-bike","flick","hot-sneaks","le-frog","mint-choc","overcast",
 		"pepper-grinder","south-street","sunny","swanky-purse","vader");
@@ -282,6 +284,10 @@ function fn_return_adt_form($adt_id,$slug)
 
 function fn_create_new_adt_form()
 {
+	//Ref. https://datatables.net/reference/option/
+	//implement length change
+	//implement paging
+	
 	global $wpdb;
 	
 	$tables_sql="select table_name from information_schema.tables where table_schema='".$wpdb->dbname."';";
@@ -353,12 +359,12 @@ function fn_create_new_adt_form()
         				<td><label><input type="checkbox" id="chk_adt_showinfo" checked>Show Info</label></td>
         			</tr>
         			<tr>
-        				<td><label><input type="checkbox" id="chk_adt_autowidth">bAutoWidth</label></td>
+        				<td><label><input type="checkbox" id="chk_adt_autowidth">AutoWidth</label></td>
         				<td><label><input type="checkbox" id="chk_adt_scrollvertical">Scroll Vertical</label></td>
         				<td><label><input type="checkbox" id="chk_adt_individual_column_filtering">Individual Column Filtering</label></td>
         			</tr>
         			<tr>
-        				<th colspan="3"><label for="txt_adt_sdom" title="Datatable DOM Positioning (Leave it blank if you do not know what you are doing.)">sDom</label></th>
+        				<th colspan="3"><label for="txt_adt_sdom" title="Datatable DOM Positioning (Leave it blank if you do not know what you are doing.)">Dom</label></th>
         			</tr>
         			<tr>
         				<td colspan="3"><input type="text" id="txt_adt_sdom" style="width:100%" /></td>
@@ -491,9 +497,10 @@ function fn_adt_table_save_ajax()
 	
 	$datatable_slug=sanitize_title($datatable_name);
 	
-	//check if datatable name is duplicate or not. we do not allow duplicate as the adore datatable shortcode will be available via ID or SLUG.
+	//check if datatable name is duplicate or not. we do not allow duplicate as the adore datatable shortcode will be available via ID or SLUG.	
+	$str_duplicate_sql="select adt_table_slug from adore_datatable_settings where adt_table_slug='$datatable_slug'";	
 	
-	$is_duplicate_adt=$wpdb->get_results("select adt_table_slug from adore_datatable_settings where adore_datatable_settings='$datatable_slug'");
+	$is_duplicate_adt=$wpdb->get_results($str_duplicate_sql);
 	if(!empty($is_duplicate_adt))
 	{
 		$result_array['result_message']='Error! Datatable name cannot be duplicate. Please input another name and try again.';
@@ -532,6 +539,9 @@ function fn_adt_table_save_ajax()
 	$wpdb->insert('adore_datatable_settings', $insert_array);
 	$datatable_id=$wpdb->insert_id;
 	
+	//call function to create PHP files for server processing
+	fn_adt_server_side_files_maker($datatable_slug,$datatable_json);
+		
 	$result_array['datatable_id']=$datatable_id;
 	$result_array['datatable_name']=$datatable_name;
 	$result_array['datatable_slug']=$datatable_slug;
@@ -957,7 +967,170 @@ function fn_adt_js_write($form_url)
 			update_option( 'adt_js_version', $js_version );
 		}
 	}
-              
-    
     return $jstext;
+}
+
+
+
+/**
+ * Function creates PHP files for server processing Adore Datatable
+ */
+function fn_adt_server_side_files_maker($datatable_slug,$datatable_json)
+{
+	//ADT_SERVER_PROCESSING_FILES_PATH
+	
+	$adt_array=json_decode($datatable_json,TRUE);
+	
+	if(is_array($adt_array))
+	{
+		$table_id=$adt_array['html_table_id'];
+		$table_type=$adt_array['table_type'];
+		$database_table_name=$adt_array['database_table_name'];
+		$columns_array=$adt_array['columns_array'];
+		
+		$str_columns_name='';
+		$index_column=$columns_array[0]['column_name'];
+		
+		foreach($columns_array as $key=>$value)
+		{
+			$str_columns_name.="'".$value['column_name']."',";
+		}
+				
+		$str_columns_name=rtrim(trim($str_columns_name),','); //remove last comma
+		
+		if($table_type!='server')
+		{
+			continue;
+		}
+		
+		if(empty($table_id))
+		{
+			$table_id=$datatable_slug;
+		}
+		$adt_table_id=str_replace('-', '_', $table_id);
+		
+		$server_php_file_name=ADT_SERVER_PROCESSING_FILES_PATH.'/adt_'.$adt_table_id.'.php';
+		
+		if(!file_exists($server_php_file_name))
+		{
+			$str_content='<?php
+					add_action("wp_ajax_fn_'.$adt_table_id.'_ajax", "fn_'.$adt_table_id.'_ajax");
+					add_action("wp_ajax_nopriv_fn_'.$adt_table_id.'_ajax", "fn_'.$adt_table_id.'_ajax");
+					function fn_'.$adt_table_id.'_ajax()
+					{
+						global $wpdb;
+						
+						$aColumns = array(
+							'.$str_columns_name.'		
+							);
+						$sIndexColumn = "'.$index_column.'";
+						$sTable = "'.$database_table_name.'";
+						
+						$sLimit = "";
+						if ( isset( $_REQUEST["iDisplayStart"] ) && $_REQUEST["iDisplayLength"] != "-1" )
+						{
+							$sLimit = "LIMIT ".$wpdb->escape( $_REQUEST["iDisplayStart"] ).", ".
+								$wpdb->escape( $_REQUEST["iDisplayLength"] );
+						}
+					
+						/*
+						 * Ordering
+						 */
+						$sOrder = "";
+						if ( isset( $_REQUEST["iSortCol_0"] ) )
+						{
+							$sOrder = "ORDER BY  ";
+							for ( $i=0 ; $i<intval( $_REQUEST["iSortingCols"] ) ; $i++ )
+							{
+								if ( $_REQUEST[ "bSortable_".intval($_REQUEST["iSortCol_".$i]) ] == "true" )
+								{
+									$sOrder .= "`".$aColumns[ intval( $_REQUEST["iSortCol_".$i] ) ]."` ".
+									 	$wpdb->escape( $_REQUEST["sSortDir_".$i] ) .", ";
+								}
+							}
+					
+							$sOrder = substr_replace( $sOrder, "", -2 );
+							if ( $sOrder == "ORDER BY" )
+							{
+								$sOrder = "";
+							}
+						}
+					
+						$sWhere = "";
+						if ( isset($_REQUEST["sSearch"]) && $_REQUEST["sSearch"] != "" )
+						{
+							$sWhere = "WHERE (";
+							for ( $i=0 ; $i<count($aColumns) ; $i++ )
+							{
+								$sWhere .= "`".$aColumns[$i]."` LIKE \'%".$wpdb->escape( $_REQUEST["sSearch"] )."%\' OR ";
+							}
+							$sWhere = substr_replace( $sWhere, "", -3 );
+							$sWhere .= ")";
+						}
+					
+						/*
+						 * SQL queries
+						 * Get data to display
+						 */
+						$sQuery = "
+							SELECT SQL_CALC_FOUND_ROWS `".str_replace(" , ", " ", implode("`, `", $aColumns))."`
+							FROM   $sTable
+							$sWhere
+							$sOrder
+							$sLimit
+							";	
+						
+						$rResult = $wpdb->get_results($sQuery,ARRAY_A);
+						
+						$sQuery = "
+							SELECT FOUND_ROWS()
+						";
+						$aResultFilterTotal=$wpdb->get_results($sQuery,ARRAY_N);
+						$iFilteredTotal = $aResultFilterTotal[0];
+					
+						$sQuery = "
+							SELECT COUNT(`".$sIndexColumn."`)
+							FROM   $sTable
+						";
+						$aResultTotal=$wpdb->get_results($sQuery,ARRAY_N);
+						$iTotal = $aResultTotal[0];
+					
+						/*
+						 * Output
+						 */
+						$output = array(
+							"sEcho" => intval($_REQUEST["sEcho"]),
+							"iTotalRecords" => $iTotal,
+							"iTotalDisplayRecords" => $iFilteredTotal,
+							"aaData" => array()
+						);
+						
+						foreach($rResult as $aRow)
+						{
+							$row = array();
+							for ( $i=0 ; $i<count($aColumns) ; $i++ )
+							{
+								if ( $aColumns[$i] == "version" )
+								{
+									/* Special output formatting for \'version\' column */
+									$row[] = ($aRow[ $aColumns[$i] ]=="0") ? \'-\' : $aRow[ $aColumns[$i] ];
+								}
+								else if ( $aColumns[$i] != "" )
+								{
+									/* General output */
+									$row[] = $aRow[ $aColumns[$i] ];
+								}
+							}
+							$output["aaData"][] = $row;
+						}
+					
+						echo json_encode( $output );
+						die();
+					}';
+			
+			$handle = fopen($server_php_file_name, 'w');
+			fwrite($handle, $str_content);
+			fclose($handle);
+		}		
+	}
 }

@@ -18,6 +18,7 @@ include_once('php/adore-datatables.php');
 //$adt_plugin_dir_path=;
 
 define("ADT_PLUGIN_DIR_PATH", plugin_dir_path( __FILE__ ));
+define("ADT_SERVER_PROCESSING_FILES_PATH", ADT_PLUGIN_DIR_PATH."adt_files");
 
 /**
  * Create Demo table and fill it with data on plugin activation
@@ -146,6 +147,7 @@ function fn_adt_add_settings_link ($links)
 	return $links;
 }
 
+
 if(!function_exists('fn_applog'))
 {
 	function fn_applog($str_val)
@@ -160,4 +162,9 @@ if(!function_exists('fn_applog'))
 		fwrite($handle, $str_val);
 		fclose($handle);
 	}
+}
+
+foreach ( glob( ADT_SERVER_PROCESSING_FILES_PATH."/*.php" ) as $file ) 
+{
+    include_once $file;
 }

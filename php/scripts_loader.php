@@ -71,6 +71,8 @@ function fn_print_adt_scripts()
 		//Load custom script to handle the datatable
 		wp_enqueue_script('adt_custom_js');
 		
+		wp_localize_script('adt_custom_js', 'AdoreDTAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+		
 		/**
 		 * Ref http://wordpress.stackexchange.com/questions/24851/wp-enqueue-inline-script-due-to-dependancies
 		 * http://wordpress.stackexchange.com/questions/32388/solutions-for-generating-dynamic-javascript-css
@@ -95,19 +97,108 @@ function fn_adt_inline_script()
 			
 		$adt_array=$adt_global[$post_id];
 		
+		$str_additional_script='';
+		
 		$str_return='
 			<script type="text/javascript">
 				$=jQuery;
 				jQuery(document).ready(function($) 
 				{
-		';		
-		
+		';
 		foreach($adt_array as $key=>$value)
 		{
+			//call function to create server processing files
+			$datatable_json=json_encode($value);
+			
+			fn_adt_server_side_files_maker($key,$datatable_json);			
+			
 			$table_slug=$key;
 			$table_id=$value['html_table_id'];
 			$table_type=$value['table_type'];
 			$pagination_type=$value['pagination_type'];
+			$allow_search=$value['allow_search'];
+			$allow_ordering=$value['allow_ordering'];
+			$show_info=$value['show_info'];
+			$allow_auto_width=$value['allow_auto_width'];
+			$scroll_vertical=$value['scroll_vertical'];
+			$individual_column_filtering=$value['individual_column_filtering'];
+			$sdom=$value['sdom'];
+			$fn_row_callback=$value['fn_row_callback'];
+			$columns_array=$value['columns_array'];
+			
+			$str_autowidth='false';
+			if($allow_auto_width=='enabled')
+			{
+				$str_autowidth='true';
+			}
+			
+			$str_allow_search='false';
+			if($allow_search=='enabled')
+			{
+				$str_allow_search='true';
+			}
+			$str_show_info='false';
+			if($show_info=='enabled')
+			{
+				$show_info='true';
+			}
+			
+			$str_allow_ordering='false';
+			if($allow_ordering=='enabled')
+			{
+				$str_allow_ordering='true';
+			}
+			
+			$str_dom='';
+			if(!empty($sdom))
+			{
+				$str_dom='"dom": '.$sdom.',';
+			}
+			
+			$str_row_callback='';
+			if(!empty($fn_row_callback))
+			{
+				$str_row_callback='
+					"fnRowCallback": function( nRow, aData, iDisplayIndex ) 
+			         {
+			         	'.$fn_row_callback.'			         	
+				     }';
+			}
+			
+			$str_col_defs='
+				"columnDefs": [
+			';
+			
+			foreach($columns_array as $col_key=>$col_value)
+			{
+				$is_visible='';
+				if($col_value['is_visible']=='disabled')
+				{
+					$is_visible='"visible": false,';
+				}
+				$is_searchable='';
+				if($col_value['is_searchable']=='disabled')
+				{
+					$is_searchable='"searchable": false,';
+				}
+				$is_sortable='';
+				if($col_value['is_sortable']=='disabled')
+				{
+					$is_sortable='"orderable": false,';
+				}
+				
+				$str_col_defs.='
+					{
+		                "targets": [ '.$col_key.' ],
+		                '.$is_visible.'
+		                '.$is_searchable.'
+		                '.$is_sortable.'
+		            },
+				';
+			}
+			
+			$str_col_defs.='],';
+			
 			
 			if(empty($table_id))
 			{
@@ -121,19 +212,154 @@ function fn_adt_inline_script()
 				$str_return.='
 					var $'.$adt_table_id.'=$("#'.$table_id.'").dataTable(
 					{
-				        "bAutoWidth" : true,
-					    "pagingType": "'.$pagination_type.'"
+				        "bAutoWidth" : '.$str_autowidth.',
+					    "pagingType": "'.$pagination_type.'",
+					    "searching" : '.$str_allow_search.',
+					    "info"	: '.$str_show_info.',
+					    "ordering": '.$str_allow_ordering.',
+					    '.$str_col_defs.'
+					    '.$str_dom.'
+					    '.$str_row_callback.'
 				    });
+				';
+			}
+			if($table_type=='server')
+			{
+				$str_return.='
+					var $'.$adt_table_id.'=$("#'.$table_id.'").dataTable(
+					{
+				        "bAutoWidth" : '.$str_autowidth.',
+					    "pagingType": "'.$pagination_type.'",
+					    "searching" : '.$str_allow_search.',
+					    "info"	: '.$str_show_info.',
+					    "ordering": '.$str_allow_ordering.',
+					    '.$str_col_defs.'
+					    '.$str_dom.'
+					    "bProcessing": true,
+					    "bServerSide": true,
+					    "sAjaxSource": AdoreDTAjax.ajaxurl+\'?action=fn_'.$adt_table_id.'_ajax\',	     
+					    "bDeferRender": true,
+					    "fnServerData": fn'.$adt_table_id.'Pipeline,
+					    '.$str_row_callback.'
+				    });
+					
+					
+				';
+				$str_additional_script.='
+					var '.$adt_table_id.'_cache = {
+						iCacheLower: -1
+					};
+					
+					function fn'.$adt_table_id.'Pipeline ( sSource, aoData, fnCallback ) {
+						var iPipe = 5; /* Ajust the pipe size */
+						
+						var bNeedServer = false;
+						var sEcho = fnGetKey(aoData, "sEcho");
+						var iRequestStart = fnGetKey(aoData, "iDisplayStart");
+						var iRequestLength = fnGetKey(aoData, "iDisplayLength");
+						var iRequestEnd = iRequestStart + iRequestLength;
+						'.$adt_table_id.'_cache.iDisplayStart = iRequestStart;
+						
+						/* outside pipeline? */
+						if ( '.$adt_table_id.'_cache.iCacheLower < 0 || iRequestStart < '.$adt_table_id.'_cache.iCacheLower || iRequestEnd > '.$adt_table_id.'_cache.iCacheUpper )
+						{
+							bNeedServer = true;
+						}
+						
+						/* sorting etc changed? */
+						if ( '.$adt_table_id.'_cache.lastRequest && !bNeedServer )
+						{
+							for( var i=0, iLen=aoData.length ; i<iLen ; i++ )
+							{
+								if ( aoData[i].name != "iDisplayStart" && aoData[i].name != "iDisplayLength" && aoData[i].name != "sEcho" )
+								{
+									if ( aoData[i].value != '.$adt_table_id.'_cache.lastRequest[i].value )
+									{
+										bNeedServer = true;
+										break;
+									}
+								}
+							}
+						}
+						
+						/* Store the request for checking next time around */
+						'.$adt_table_id.'_cache.lastRequest = aoData.slice();
+						
+						if ( bNeedServer )
+						{
+							if ( iRequestStart < '.$adt_table_id.'_cache.iCacheLower )
+							{
+								iRequestStart = iRequestStart - (iRequestLength*(iPipe-1));
+								if ( iRequestStart < 0 )
+								{
+									iRequestStart = 0;
+								}
+							}
+							
+							'.$adt_table_id.'_cache.iCacheLower = iRequestStart;
+							'.$adt_table_id.'_cache.iCacheUpper = iRequestStart + (iRequestLength * iPipe);
+							'.$adt_table_id.'_cache.iDisplayLength = fnGetKey( aoData, "iDisplayLength" );
+							fnSetKey( aoData, "iDisplayStart", iRequestStart );
+							fnSetKey( aoData, "iDisplayLength", iRequestLength*iPipe );
+							
+							$.getJSON( sSource, aoData, function (json) { 
+								/* Callback processing */
+								'.$adt_table_id.'_cache.lastJson = jQuery.extend(true, {}, json);
+								
+								if ( '.$adt_table_id.'_cache.iCacheLower != '.$adt_table_id.'_cache.iDisplayStart )
+								{
+									json.aaData.splice( 0, '.$adt_table_id.'_cache.iDisplayStart-'.$adt_table_id.'_cache.iCacheLower );
+								}
+								json.aaData.splice( '.$adt_table_id.'_cache.iDisplayLength, json.aaData.length );
+								
+								fnCallback(json);
+							} );
+						}
+						else
+						{
+							json = jQuery.extend(true, {}, '.$adt_table_id.'_cache.lastJson);
+							json.sEcho = sEcho; /* Update the echo for each response */
+							json.aaData.splice( 0, iRequestStart-'.$adt_table_id.'_cache.iCacheLower );
+							json.aaData.splice( iRequestLength, json.aaData.length );
+							fnCallback(json);
+							return;
+						}
+					}
 				';
 			}
 		}
 		
 		$str_return.='
 				});
+				'.$str_additional_script.'
+				function fnSetKey( aoData, sKey, mValue )
+				{
+					for ( var i=0, iLen=aoData.length ; i<iLen ; i++ )
+					{
+						if ( aoData[i].name == sKey )
+						{
+							aoData[i].value = mValue;
+						}
+					}
+				}
+				
+				function fnGetKey( aoData, sKey )
+				{
+					for ( var i=0, iLen=aoData.length ; i<iLen ; i++ )
+					{
+						if ( aoData[i].name == sKey )
+						{
+							return aoData[i].value;
+						}
+					}
+					return null;
+				}
 			</script>
 		';
 		echo $str_return;
 	}
+	
+	//fn_adt_server_side_files_maker($datatable_slug,$datatable_json)
 }
 
 

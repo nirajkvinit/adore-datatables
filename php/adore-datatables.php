@@ -9,17 +9,22 @@ add_shortcode( 'adore-datatables', 'fn_adore_datatables_shortcode' );
  */
 function fn_adore_datatables_shortcode($atts, $content = null)
 {
-	extract(shortcode_atts(array(
+	/*extract(shortcode_atts(array(
         'id' => null,
         'table' => null
-    ), $atts));
-	
-	$str_return=fn_adore_datatables_maker($id,$table);
-	
+    ), $atts,'adore-datatables'));
+	*/
+	$atts = shortcode_atts(
+		array(
+			'id' => null,
+			'table' => null,
+		), $atts, 'adore-datatables' );
+			
+	$str_return=fn_adore_datatables_maker($atts);	
 	return $str_return;
 }
 
-function fn_adore_datatables_maker($adt_id,$adt_slug)
+function fn_adore_datatables_maker($atts)
 {
 	global $wpdb, $post, $adt_global, $adt_options;
 	
@@ -28,24 +33,34 @@ function fn_adore_datatables_maker($adt_id,$adt_slug)
 		$adt_global=array();
 	}
 	
+	$adt_id=$atts['id'];
+	$adt_slug=$atts['table'];	
+	
 	$post_id=$post->ID;	
-	$adt_slug=sanitize_text_field($adt_slug);
+	
 	$adt_name='';
-	$adt_slug='';
 	
-	if(is_null($adt_id) && is_null($adt_slug))
-	{
-		return '<div class="error">Error! You have not provided Adore Datatable ID or Name in your shortcode tag.</div>';
-	}
-	if(!is_null($adt_id) && !is_numeric($adt_id))
-	{
-		return '<div class="error">Error! Adore Datatable ID is incorrect. Please check the shortcode tag.</div>';
-	}
 	
-	$adt_datatable_dataset=$wpdb->get_results("SELECT * FROM adore_datatable_settings where adt_id=$adt_id or adt_table_slug='$adt_slug'");
+	$str_sql="";
+	fn_applog('id: '.$adt_id.' slug: '.$adt_slug);
+	if(!empty($adt_slug))
+	{
+		$adt_slug=sanitize_text_field($adt_slug);
+		$str_sql="SELECT * FROM adore_datatable_settings where adt_table_slug='$adt_slug'";
+	}
+	else if(!empty($adt_id) && is_numeric($adt_id))
+	{
+		$str_sql="SELECT * FROM adore_datatable_settings where adt_id=$adt_id";
+	}
+	else 
+	{
+		return '<div class="error">Error! You have not provided Adore Datatable ID or Name in your shortcode tag.</div>';				
+	}
+		
+	$adt_datatable_dataset=$wpdb->get_results($str_sql);
 	if(empty($adt_datatable_dataset))
 	{
-		return '<div class="error">Error! Adore Datatable information not found in the database. Please check the shortcode tag.</div>';
+		return '<div class="error">Error! Adore Datatable information was not found in the database. Please check the shortcode tag.</div>';
 	}
 	
 	$adt_table_settings='';
@@ -64,7 +79,7 @@ function fn_adore_datatables_maker($adt_id,$adt_slug)
 	{
 		if(array_key_exists($adt_table_slug,$adt_array))
 		{
-			return 'Adore Datatable "'.$adt_name.'" has been called earlier in the post. An Adore Datatable instance can be called only once in a page/post.';
+			return 'Adore Datatable "'.$adt_name.'" had been called earlier in the post. An Adore Datatable instance can be called only once in a page/post.';
 		}
 	}
 	
@@ -75,19 +90,6 @@ function fn_adore_datatables_maker($adt_id,$adt_slug)
 	$table_type=$adt_table_settings['table_type'];
 	$database_table_name=$adt_table_settings['database_table_name'];
 	$columns_array=$adt_table_settings['columns_array'];
-	
-	/**variables needed for javascript
-	$pagination_type=$adt_table_settings['pagination_type'];
-	$allow_search=$adt_table_settings['allow_search'];
-	$allow_ordering=$adt_table_settings['allow_ordering'];
-	$show_info=$adt_table_settings['show_info'];
-	$allow_auto_width=$adt_table_settings['allow_auto_width'];
-	$scroll_vertical=$adt_table_settings['scroll_vertical'];
-	$individual_column_filtering=$adt_table_settings['individual_column_filtering'];
-	$sdom=$adt_table_settings['sdom'];
-	$fn_row_callback=$adt_table_settings['fn_row_callback'];
-	**/
-	
 	
 	//datatable global options
 	if(!isset($adt_options))
