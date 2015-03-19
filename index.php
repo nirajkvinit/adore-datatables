@@ -11,7 +11,6 @@ Author URI: http://www.adoreits.com/
 define("ADT_DEMO_TABLE_NAME", "adt_demo_table");
 define("PLUGIN_ADMIN_PAGE_SLUG", "adore-datatables");
 include_once('php/scripts_loader.php');
-include_once('php/demo_datatables.php');
 include_once('php/admin-settings.php');
 include_once('php/adore-datatables.php');
 
