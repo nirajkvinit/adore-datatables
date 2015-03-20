@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Function to register Javascript and CSS Files for Adore Datatables
+ */
 add_action('init', 'fn_adt_register_scripts');
 function fn_adt_register_scripts() 
 {
@@ -7,6 +10,9 @@ function fn_adt_register_scripts()
 	fn_adt_register_javascripts();
 }
 
+/**
+ * Enqueue Javascript and CSS files for Adore Datatables
+ */
 add_action('wp_footer', 'fn_print_adt_scripts');
 function fn_print_adt_scripts() 
 {
@@ -83,6 +89,9 @@ function fn_print_adt_scripts()
 	
 }
 
+/**
+ * Dynamically generated Javascript code to handle Adore Datatables
+ */
 function fn_adt_inline_script()
 {
 	global $post, $adt_global, $adt_options;
@@ -362,9 +371,8 @@ function fn_adt_inline_script()
 	//fn_adt_server_side_files_maker($datatable_slug,$datatable_json)
 }
 
-
 /**
- * Javascript for Adore Datatable Admin Control Panel 
+ * Enqueue Javascript for Adore Datatable Admin Control Panel 
  */
 add_action('admin_enqueue_scripts', 'fn_adt_admin_load_scripts');
 function fn_adt_admin_load_scripts($hook) 
@@ -377,7 +385,6 @@ function fn_adt_admin_load_scripts($hook)
 	}	
  	wp_enqueue_script('datatables_admin_js');
 }
-
 
 /**
  * Function to register CSS Files
@@ -444,6 +451,9 @@ function fn_adt_register_javascripts()
 	wp_register_script('datatables_admin_js', plugins_url('/assets/js/adore-datatables-admin.js', dirname(__FILE__) ), array(jquery), $dynamic_version,TRUE); //Ref. http://codex.wordpress.org/Function_Reference/plugins_url	
 }
 
+/**
+ * Function to jQueryUI CSS files based on jQueryUI Theme
+ */
 function fn_adt_register_jqueryui_css($theme='')
 {
 	$jqueryui_version='1.11.4'; //jQueryUI Css will be based on this version. Can be changed manually.	

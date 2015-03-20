@@ -1,6 +1,5 @@
 <?php
 add_shortcode('adt_demo_datatables', 'fn_adt_demo_datatables');
-
 function fn_adt_demo_datatables() 
 {
 	global $add_demo_adt_scripts;

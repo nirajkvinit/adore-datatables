@@ -1,4 +1,4 @@
-0.0.3	Release Date	<not yet released>
+0.0.3	Release Date	20-03-2015
 ------------------------------------------------------------------------
 * Adore Datatables Settings Page created in the wordpress Admin Control Panel.
 * Dynamically read all tables/views in the database and let user create Datatable based on a selected table/view.
@@ -7,7 +7,11 @@
 * Option for adding jQueryUI or Bootstrap style
 * Custom JS and CSS can be saved and will be loaded on every page/post wherever Adore Datatable instance is found.
 * Custom JS and CSS version will increment on every update in the control panel.
-* jqueryUI Theme selection
+* jQueryUI Theme selection
+* Uninstalling the plugin will remove Adore Datatable Database entries.
+* Fixed Shortcode arrtibutes bug
+* Fixed Directory not found bug for Adore Datatables Server Side Processing files 
+
 
 
 0.0.2	Release Date	03/03/2015

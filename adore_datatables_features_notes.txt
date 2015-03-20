@@ -1,36 +1,16 @@
 Options
---------------------------------------------
--------------------------table id and class
-(((("deferRender": true))))
+
 ((((lengthMenu))))	http://datatables.net/examples/advanced_init/length_menu.html
 Page length options
 Rows per page
--------------------------HTML (DOM) sourced data/Server-side processing
--------------------------Alternative pagination
 -------------------------Scroll - vertical
 Scroll - vertical with jQuery UI ThemeRoller	---- tough to implement
 -------------------------DOM positioning
-
-Styling
---------------------------------------------
-Base style
-Base style - no styling classes
-Base style - cell borders
-Base style - compact
-Base style - hover
-Base style - order-column
-Base style - row borders
-Base style - stripe
-Bootstrap					---- tough to implement
-jQuery UI ThemeRoller (With Themes)		---- tough to implement
-
-
 
 Filtering
 --------------------------------------------
 -------------------------Individual column searching (text inputs)	---- tough to implement
 Individual column searching (select inputs)	---- tough to implement
-
 
 API
 --------------------------------------------

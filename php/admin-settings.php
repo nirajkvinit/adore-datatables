@@ -621,7 +621,7 @@ function fn_adt_settings_save_ajax()
 
 /************************************************************************************************************************************
  ************************************************************************************************************************************
- * 						Codes to save Custom Javascript and CSS in Adore Datatables Admin Control Panel  
+ * 						Codes to save Custom Javascript and CSS in Adore Datatables Admin Control Panel  using Wordpress Filesystem API
  */
  function fn_adt_admin_css_content()
 {

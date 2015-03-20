@@ -1,7 +1,7 @@
 <?php
 //Reference http://codex.wordpress.org/Function_Reference/register_uninstall_hook
 
-//if uninstall not called from WordPress exit
+//if uninstall has not been called from WordPress then exit
 if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) 
     exit();
 
@@ -17,7 +17,7 @@ delete_option( $option_name );
 $option_name = 'adt_js_version';
 delete_option( $option_name );
 
-//drop a custom db table
+//drop Adore Datatables custom database table
 global $wpdb;
 
 $demo_table_prefix=$wpdb->prefix;

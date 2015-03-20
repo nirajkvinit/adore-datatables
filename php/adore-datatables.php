@@ -109,7 +109,7 @@ function fn_adore_datatables_maker($atts)
 		    add_option('adt_admin_config', $adt_admin_config, $deprecated, $autoload);
 		}
 		$adt_admin_config=json_decode($adt_admin_config,TRUE);
-		//set global option for adore datatable.
+		//set global option for adore datatable if not available.
 		$adt_options=$adt_admin_config;
 	}
 	
@@ -222,7 +222,3 @@ function fn_adore_datatables_maker($atts)
 	';
 	return $str_table;
 }
-
-
-
-

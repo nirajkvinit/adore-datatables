@@ -3,10 +3,14 @@
 Plugin Name: Adore Datatables
 Plugin URI: https://github.com/adoreits/adore-datatables
 Description: Adore Datatables (Wordpress and Datatables Integration Project). Use the shortcode [adt_demo_datatables] to load the demo datatable.
-Version: 0.0.2
+Version: 0.0.3
 Author: Niraj Kumar (Adore ITS)
 Author URI: http://www.adoreits.com/
 */
+
+// Do not allow direct access
+defined('ABSPATH') or die('adore-datatables');
+
 
 define("ADT_DEMO_TABLE_NAME", "adt_demo_table");
 define("PLUGIN_ADMIN_PAGE_SLUG", "adore-datatables");
@@ -14,17 +18,11 @@ include_once('php/scripts_loader.php');
 include_once('php/admin-settings.php');
 include_once('php/adore-datatables.php');
 
-//$adt_plugin_dir_path=;
-
 define("ADT_PLUGIN_DIR_PATH", plugin_dir_path( __FILE__ ));
 define("ADT_SERVER_PROCESSING_FILES_PATH", ADT_PLUGIN_DIR_PATH."adt_files");
 
 /**
- * Create Demo table and fill it with data on plugin activation
- * This may generate error/notice in some installation. Need to investigate the issue.
- * No harm done though.
- * 
- * Need to implement uninstall hook to cleanup the tables created by this plugin.
+ * Create Demo table and fill it with data on plugin activation 
  */
 register_activation_hook( __FILE__, 'fn_create_adt_table' );
 register_activation_hook( __FILE__, 'fn_install_adt_data' );
