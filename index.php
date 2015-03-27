@@ -154,7 +154,7 @@ if(!function_exists('fn_applog'))
 			$str_val='\n Empty call';
 		}
 		$str_val= "\n".$str_val;
-		$my_file = plugin_dir_path(__FILE__).'applog.txt';
+		$my_file = ADT_PLUGIN_DIR_PATH.'applog.txt';
 		$handle = fopen($my_file, 'a') or die('Cannot open file:  '.$my_file);
 		fwrite($handle, $str_val);
 		fclose($handle);
