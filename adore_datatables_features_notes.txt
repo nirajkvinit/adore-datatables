@@ -4,14 +4,14 @@ Options
 Page length options
 Rows per page
 -------------------------Scroll - vertical
-Scroll - vertical with jQuery UI ThemeRoller	---- tough to implement
+Scroll - vertical with jQuery UI ThemeRoller
 -------------------------DOM positioning
 
 Filtering
 --------------------------------------------
--------------------------Individual column searching (text inputs)	---- tough to implement
-Individual column searching (select inputs)	---- tough to implement
+-------------------------Individual column searching (text inputs)
+Individual column searching (select inputs)
 
 API
 --------------------------------------------
-Show / hide columns dynamically			---- tough to implement
+Show / hide columns dynamically		
