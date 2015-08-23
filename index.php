@@ -3,7 +3,7 @@
 Plugin Name: Adore Datatables
 Plugin URI: https://github.com/adoreits/adore-datatables
 Description: Adore Datatables (Wordpress and Datatables Integration Project). Use the shortcode [adt_demo_datatables] to load the demo datatable.
-Version: 0.0.3
+Version: 0.0.4
 Author: Niraj Kumar (Adore ITS)
 Author URI: http://www.adoreits.com/
 */

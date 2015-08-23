@@ -1,6 +1,5 @@
 <?php
 add_shortcode( 'adore-datatables', 'fn_adore_datatables_shortcode' );
-
  /**
  * Shortcode tags are:
  * [adore-datatables id="1"] 
@@ -23,7 +22,6 @@ function fn_adore_datatables_shortcode($atts, $content = null)
 	$str_return=fn_adore_datatables_maker($atts);	
 	return $str_return;
 }
-
 function fn_adore_datatables_maker($atts)
 {
 	global $wpdb, $post, $adt_global, $adt_options;
@@ -40,9 +38,7 @@ function fn_adore_datatables_maker($atts)
 	
 	$adt_name='';
 	
-	
-	$str_sql="";
-	fn_applog('id: '.$adt_id.' slug: '.$adt_slug);
+	$str_sql="";	
 	if(!empty($adt_slug))
 	{
 		$adt_slug=sanitize_text_field($adt_slug);
@@ -167,7 +163,6 @@ function fn_adore_datatables_maker($atts)
 	{
 		$str_table.='<th>'.$column_data['column_title'].'</th>';
 	}
-
 	$str_table.='
 				</tr>
 			</thead>

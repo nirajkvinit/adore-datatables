@@ -128,6 +128,15 @@ jQuery(document).ready(function($)
     		return;
     	}
     	
+    	//html table id cannot contain space.
+    	if($html_table_id.length>0 && $html_table_id.indexOf(' ')>=0)
+    	{
+    		$str_message="Table ID text cannot have space.";
+    		$message_type="warning";
+    		fn_adt_show_info_msg($str_message, $result_area, $message_type);
+    		return;
+    	}
+    	
     	$table_columns_array_for_post=[];
     	
     	$column_position_array=[];
@@ -287,7 +296,7 @@ jQuery(document).ready(function($)
     	
     	var submit_data = 
 		{
-			action: 'fn_adt_table_save_ajax',
+			action: 'fn_save_adt_table_ajax',
 			adt_nonce:$adt_nonce,
 			datatable_name:$datatable_name,
 			html_table_id:$html_table_id,
@@ -401,7 +410,69 @@ jQuery(document).ready(function($)
         });
     	
     	
+    });    
+    
+    $("#div_adt_settings_area").on('click', "#cmd_delete_adt_instance", function(event)
+    {
+    	event.preventDefault();
+    	
+    	var $button=$(this);
+    	$button.prop('disabled', true);
+    	var $selected = $('#select_adt_table option:selected');
+    	var $selected_adt_id=$selected.val();
+    	var $adt_slug=$("#hidden_adt_slug").val();
+    	var $html_table_id=$("#txt_adt_table_id").val();
+    	$("<div>This datatable will be permanently deleted and cannot be recovered. Are you sure?</div>").dialog(
+		{
+			resizable: false,
+			title:'Delete this Datatable?',
+			modal: true,
+			width:500,
+			buttons: 
+			{
+				"No": function() 
+		        {
+		        	$button.prop('disabled', false);
+					$(this).dialog("close");		          
+		        },
+		        "Yes": function() 
+		        {
+					$(this).dialog("close");
+					$("#adt_settings_loader").show();
+					$button.hide();
+					var submit_data = 
+					{
+						action: 'fn_delete_adt_ajax',
+						selected_adt_id:$selected_adt_id,
+						table_slug:$adt_slug,
+						table_id:$html_table_id
+					};
+					jQuery.post(ajaxurl, submit_data, function(response)
+			        {
+			        	if(response.indexOf('Error')>=0)
+			        	{
+			        		$("#div_adt_delete_result").html(response);
+			        		$button.prop('disabled', false);
+			        	}
+			        	else
+			        	{			        		
+			        		$selected.remove();
+			        		$('#select_adt_table').val('select').change();
+			        	}
+			        }).complete(function()
+			        {
+			        	$("#adt_settings_loader").hide();
+			        });
+		        },
+		        Cancel: function() 
+		        {
+		        	$button.prop('disabled', false);
+					$(this).dialog("close");
+				},
+			}
+		});
     });
+    
 });
 
 var $time_out_var=null;

@@ -3,7 +3,7 @@
 
 Using this wordpress plugin, you can use jQuery Datatables in your wordpress pages/posts.
 
-# Current Version: 0.0.3 (Fully functional Beta release)
+# Current Version: 0.0.4 (Fully functional Beta release)
 
 # Installation Guide
 
@@ -22,7 +22,7 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 
 2. After you create an Adore Datatable, use the shortcode given there in any page or post.
 
-3. Shortcode will be similar to [adore-datatables id="1"] Or [adore-datatables table="adore-demo"]
+3. Shortcode will be similar to [adore-datatables id="1"]
 
 
 # Note

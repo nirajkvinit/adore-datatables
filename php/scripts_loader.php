@@ -382,7 +382,9 @@ function fn_adt_admin_load_scripts($hook)
 	if( $hook != $adt_settings_page ) //ref. https://pippinsplugins.com/loading-scripts-correctly-in-the-wordpress-admin/
 	{
 		return;		
-	}	
+	}
+	wp_enqueue_script('jquery-ui-dialog');
+	wp_enqueue_style("wp-jquery-ui-dialog");
  	wp_enqueue_script('datatables_admin_js');
 }
 

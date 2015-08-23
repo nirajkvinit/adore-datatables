@@ -268,16 +268,245 @@ function fn_load_dt_settings_ajax()
 function fn_return_adt_form($adt_id,$slug)
 {
 	$str_return='
-		<div>
-			<h2>Please use the following shortcode for this Datatable:
-				<br />
-				<code>[adore-datatables id="'.$adt_id.'"]</code>
-				<br />
-				Or
-				<br />
-				<code>[adore-datatables table="'.$slug.'"]</code>
-			</h2>
-		</div>
+		<div class="welcome-panel">
+        	<div class="welcome-panel-content">
+        		<h3>Shortcode :	</h3>
+        		<hr />
+        		<code>[adore-datatables id="'.$adt_id.'"]</code> Or	<code>[adore-datatables table="'.$slug.'"]</code>
+        		<input type="submit" value="Delete this Datatable Instance" class="button" id="cmd_delete_adt_instance">
+				<div id="div_adt_delete_result">
+				</div>
+        		<br />
+        	</div>
+        </div>
+	'.fn_update_adt_form($adt_id,$slug);
+	return $str_return;
+}
+
+add_action('wp_ajax_fn_delete_adt_ajax', 'fn_delete_adt_ajax');
+function fn_delete_adt_ajax()
+{
+	global $wpdb;
+	
+	//get datatable information datatable slug, datatable id,
+	$selected_adt_id=$_POST['selected_adt_id'];
+	$adt_slug=sanitize_text_field($_POST['table_slug']);
+	$html_table_id=sanitize_text_field($_POST['table_id']);
+		
+	if(!is_numeric($selected_adt_id))
+	{
+		echo 'Error deleting Datatable! Datatable ID was not in proper format.';
+		die();
+	}
+	
+	//delete datatable from adore_datatable_settings table by id $selected_adt_id
+	$str_sql=" delete from adore_datatable_settings where adt_id=$selected_adt_id";
+	$wpdb->query($str_sql);
+	
+	//delete datatable php file created by the function fn_adt_server_side_files_maker
+	if(empty($html_table_id))
+	{
+		$html_table_id=$adt_slug;
+	}
+	$adt_table_id=str_replace('-', '_', $html_table_id);	
+	$server_php_file_name=ADT_SERVER_PROCESSING_FILES_PATH.'/adt_'.$adt_table_id.'.php';
+	unlink($server_php_file_name);
+	
+	echo 'Success! Adore Datatable instance was deleted successfully!';
+		
+	die();
+}
+
+
+function fn_update_adt_form($adt_id,$slug)
+{
+	global $wpdb;
+	
+	if(!is_numeric($adt_id))
+	{
+		return '';
+	}
+	
+	$adt_datatable_dataset=$wpdb->get_results("select * from adore_datatable_settings where adt_id=$adt_id");
+	
+	$adt_table_settings='';
+	$adt_name='';
+	$adt_table_slug='';
+	
+	foreach($adt_datatable_dataset as $adt_datatable)
+	{
+		$adt_table_settings=json_decode($adt_datatable->adt_table_settings,TRUE);
+		$adt_name=$adt_datatable->adt_table_name;
+		$adt_table_slug=$adt_datatable->adt_table_slug;
+	}	
+	
+	$tables_sql="select table_name from information_schema.tables where table_schema='".$wpdb->dbname."';";
+	$tables_db=$wpdb->get_results($tables_sql);
+	
+	$str_adt_table_option='
+		<select id="select_adt_db_tables_list" style="width:100%">
+			<option value="select">Select a Table</option>
+	';
+	
+	foreach($tables_db as $tables)
+	{
+		$table_name=$tables->table_name;
+		$str_selected='';
+		if($table_name==$adt_table_settings['database_table_name'])
+		{
+			$str_selected='selected';			
+		}
+		$str_adt_table_option.='
+			<option value="'.$table_name.'" '.$str_selected.'>'.$table_name.'</option>
+		';
+	}
+	$str_adt_table_option.='
+		</select>
+	';
+	
+	
+	//table_type
+	$str_server_adt='';
+	$str_html_adt='';
+	switch($adt_table_settings['table_type'])
+	{
+		case 'server':
+			$str_server_adt='selected';
+			break;
+		case 'html':
+			$str_html_adt='selected';
+			break;
+	}
+	
+	$str_table_type='
+		<select id="select_adt_table_type" style="width:100%">
+			<option value="server" '.$str_server_adt.'>Server-side processing</option>
+			<option value="html" '.$str_html_adt.'>HTML (DOM) sourced data</option>
+		</select>
+	';
+	
+	$str_page_full='';
+	$str_page_full_numbers='';
+	$str_page_simple='';
+	$str_page_simple_numbers='';
+	
+	switch($adt_table_settings['pagination_type'])
+	{
+		case 'full_numbers':
+			$str_page_full_numbers='selected';
+			break;
+		case 'full':
+			$str_page_full='selected';
+			break;
+		case 'simple_numbers':
+			$str_page_simple_numbers='selected';
+			break;
+		case 'simple':
+			$str_page_simple='selected';
+			break;
+	}
+	
+	$str_pagination_type='
+		<select id="select_adt_pagination" style="width:100%">
+			<option value="full_numbers" '.$str_page_full_numbers.'>Full Numbers</option>
+			<option value="full" '.$str_page_full.'>Full</option>
+			<option value="simple_numbers" '.$str_page_simple_numbers.'>Simple Numbers</option>
+			<option value="simple" '.$str_page_simple.'>Simple</option>
+		</select>
+	';
+		
+	$chk_adt_allow_search='';
+	$chk_adt_ordering='';	
+	$chk_adt_showinfo='';
+	$chk_adt_autowidth='';
+	$chk_adt_scrollvertical='';
+	$chk_adt_individual_column_filtering='';
+	if($adt_table_settings['allow_search']=='enabled')
+	{
+		$chk_adt_allow_search='checked';
+	}
+	if($adt_table_settings['allow_ordering']=='enabled')
+	{
+		$chk_adt_ordering='checked';
+	}
+	if($adt_table_settings['show_info']=='enabled')
+	{
+		$chk_adt_showinfo='checked';
+	}
+	if($adt_table_settings['allow_auto_width']=='enabled')
+	{
+		$chk_adt_autowidth='checked';
+	}
+	if($adt_table_settings['scroll_vertical']=='enabled')
+	{
+		$chk_adt_scrollvertical='checked';
+	}
+	if($adt_table_settings['individual_column_filtering']=='enabled')
+	{
+		$chk_adt_individual_column_filtering='checked';
+	}
+	
+	$str_return='
+		<div class="welcome-panel">
+        	<div class="welcome-panel-content">
+        		<h3>Update Adore Datatable - '.$adt_name.'</h3><hr />
+        		<table width="100%">
+        			<tr>
+        				<th><label for="txt_adt_datatable_name" title="Name using which you would recognize your datatable instance">Datatable Name</label></th>
+        				<th><label for="txt_adt_table_id" title="CSS ID attribute for the HTML Table">Table ID (Optional)</label></th>
+        				<th><label for="txt_adt_table_class" title="Additional class for the HTML Table">Table Class (Optional)</label></th>
+        			</tr>
+        			<tr>        				
+        				<td><input type="text" id="txt_adt_datatable_name" style="width:100%" value="'.$adt_name.'" /></td>
+        				<td><input type="text" id="txt_adt_table_id" style="width:100%" value="'.$adt_table_settings['html_table_id'].'" /></td>
+        				<td><input type="text" id="txt_adt_table_class" style="width:100%" value="'.$adt_table_settings['html_table_class'].'" /></td>
+        			</tr>
+        			<tr>
+        				<th><label for="select_adt_table_type" title="HTML Table or Server Side Ajaxed. Warning: Too many records may freeze your browser if you select HTML (DOM) sourced data.">Table Type</label></th>
+        				<th><label for="select_adt_pagination" title="Datatable Pagination Types">Pagination</label></th>
+        				<th><label for="select_adt_db_tables_list">Select a Database Table</label></th>
+        			</tr>
+        			<tr>
+        				<td>'.$str_table_type.'</td>
+        				<td>'.$str_pagination_type.'</td>
+        				<td>'.$str_adt_table_option.'</td>
+        			</tr>
+        			<tr>
+        				<td colspan="3"><div id="div_adt_table_columns_options"></div></td>
+        			</tr>
+        			<tr>
+        				<td><label><input type="checkbox" id="chk_adt_allow_search" '.$chk_adt_allow_search.'>Allow Search</label></td>
+        				<td><label><input type="checkbox" id="chk_adt_ordering" '.$chk_adt_ordering.'>Ordering</label></td>
+        				<td><label><input type="checkbox" id="chk_adt_showinfo" '.$chk_adt_showinfo.'>Show Info</label></td>
+        			</tr>
+        			<tr>
+        				<td><label><input type="checkbox" id="chk_adt_autowidth" '.$chk_adt_autowidth.'>AutoWidth</label></td>
+        				<td><label><input type="checkbox" id="chk_adt_scrollvertical" '.$chk_adt_scrollvertical.'>Scroll Vertical</label></td>
+        				<td><label><input type="checkbox" id="chk_adt_individual_column_filtering" '.$chk_adt_individual_column_filtering.'>Individual Column Filtering</label></td>
+        			</tr>
+        			<tr>
+        				<th colspan="3"><label for="txt_adt_sdom" title="Datatable DOM Positioning (Leave it blank if you do not know what you are doing.)">Dom</label></th>
+        			</tr>
+        			<tr>
+        				<td colspan="3"><input type="text" id="txt_adt_sdom" style="width:100%" value="'.$adt_table_settings['sdom'].'" /></td>
+        			</tr>        			
+        			<tr>
+        				<th colspan="3"><label for="txt_adt_fnrowcallback" title="Extra options while datatable is rendering rows (Leave it blank if you do not know what you are doing.)">fnRowCallback</label></th>
+        			</tr>
+        			<tr>
+        				<td colspan="3"><textarea name="" id="txt_adt_fnrowcallback" style="width:100%" rows="5">'.$adt_table_settings['fn_row_callback'].'</textarea></td>
+        			</tr>
+        			<tr>
+        				<td colspan="2"><img id="adt_table_save_loader" src="'.plugins_url('/assets/images/loader.gif', dirname(__FILE__)).'" style="display:none;"/></td>
+        				<td align="right"><input type="button" class="button button-primary" id="cmd_create_adt_datatable" value="Save Datatable" /></td>
+        			</tr>
+        			<tr>
+        				<td colspan="3"><div id="div_adt_table_save_result_area"></div></td>
+        			</tr>
+        		</table>
+        		<input type="hidden" id="hidden_adt_slug" value="'.$slug.'" />
+        	</div>
+        </div>
 	';
 	return $str_return;
 }
@@ -445,8 +674,8 @@ function fn_show_adt_coulms_ajax()
 	die();
 }
 
-add_action('wp_ajax_fn_adt_table_save_ajax', 'fn_adt_table_save_ajax');
-function fn_adt_table_save_ajax()
+add_action('wp_ajax_fn_save_adt_table_ajax', 'fn_save_adt_table_ajax');
+function fn_save_adt_table_ajax()
 {
 	global $wpdb;
 	$adt_nonce=$_POST['adt_nonce'];
@@ -1011,126 +1240,123 @@ function fn_adt_server_side_files_maker($datatable_slug,$datatable_json)
 		
 		$server_php_file_name=ADT_SERVER_PROCESSING_FILES_PATH.'/adt_'.$adt_table_id.'.php';
 		
-		if(!file_exists($server_php_file_name))
-		{
-			$str_content='<?php
-					add_action("wp_ajax_fn_'.$adt_table_id.'_ajax", "fn_'.$adt_table_id.'_ajax");
-					add_action("wp_ajax_nopriv_fn_'.$adt_table_id.'_ajax", "fn_'.$adt_table_id.'_ajax");
-					function fn_'.$adt_table_id.'_ajax()
-					{
-						global $wpdb;
-						
-						$aColumns = array(
-							'.$str_columns_name.'		
-							);
-						$sIndexColumn = "'.$index_column.'";
-						$sTable = "'.$database_table_name.'";
-						
-						$sLimit = "";
-						if ( isset( $_REQUEST["iDisplayStart"] ) && $_REQUEST["iDisplayLength"] != "-1" )
-						{
-							$sLimit = "LIMIT ".$wpdb->escape( $_REQUEST["iDisplayStart"] ).", ".
-								$wpdb->escape( $_REQUEST["iDisplayLength"] );
-						}
+		$str_content='<?php
+				add_action("wp_ajax_fn_'.$adt_table_id.'_ajax", "fn_'.$adt_table_id.'_ajax");
+				add_action("wp_ajax_nopriv_fn_'.$adt_table_id.'_ajax", "fn_'.$adt_table_id.'_ajax");
+				function fn_'.$adt_table_id.'_ajax()
+				{
+					global $wpdb;
 					
-						/*
-						 * Ordering
-						 */
-						$sOrder = "";
-						if ( isset( $_REQUEST["iSortCol_0"] ) )
-						{
-							$sOrder = "ORDER BY  ";
-							for ( $i=0 ; $i<intval( $_REQUEST["iSortingCols"] ) ; $i++ )
-							{
-								if ( $_REQUEST[ "bSortable_".intval($_REQUEST["iSortCol_".$i]) ] == "true" )
-								{
-									$sOrder .= "`".$aColumns[ intval( $_REQUEST["iSortCol_".$i] ) ]."` ".
-									 	$wpdb->escape( $_REQUEST["sSortDir_".$i] ) .", ";
-								}
-							}
-					
-							$sOrder = substr_replace( $sOrder, "", -2 );
-							if ( $sOrder == "ORDER BY" )
-							{
-								$sOrder = "";
-							}
-						}
-					
-						$sWhere = "";
-						if ( isset($_REQUEST["sSearch"]) && $_REQUEST["sSearch"] != "" )
-						{
-							$sWhere = "WHERE (";
-							for ( $i=0 ; $i<count($aColumns) ; $i++ )
-							{
-								$sWhere .= "`".$aColumns[$i]."` LIKE \'%".$wpdb->escape( $_REQUEST["sSearch"] )."%\' OR ";
-							}
-							$sWhere = substr_replace( $sWhere, "", -3 );
-							$sWhere .= ")";
-						}
-					
-						/*
-						 * SQL queries
-						 * Get data to display
-						 */
-						$sQuery = "
-							SELECT SQL_CALC_FOUND_ROWS `".str_replace(" , ", " ", implode("`, `", $aColumns))."`
-							FROM   $sTable
-							$sWhere
-							$sOrder
-							$sLimit
-							";	
-						
-						$rResult = $wpdb->get_results($sQuery,ARRAY_A);
-						
-						$sQuery = "
-							SELECT FOUND_ROWS()
-						";
-						$aResultFilterTotal=$wpdb->get_results($sQuery,ARRAY_N);
-						$iFilteredTotal = $aResultFilterTotal[0];
-					
-						$sQuery = "
-							SELECT COUNT(`".$sIndexColumn."`)
-							FROM   $sTable
-						";
-						$aResultTotal=$wpdb->get_results($sQuery,ARRAY_N);
-						$iTotal = $aResultTotal[0];
-					
-						/*
-						 * Output
-						 */
-						$output = array(
-							"sEcho" => intval($_REQUEST["sEcho"]),
-							"iTotalRecords" => $iTotal,
-							"iTotalDisplayRecords" => $iFilteredTotal,
-							"aaData" => array()
+					$aColumns = array(
+						'.$str_columns_name.'		
 						);
-						
-						foreach($rResult as $aRow)
-						{
-							$row = array();
-							for ( $i=0 ; $i<count($aColumns) ; $i++ )
-							{
-								if ( $aColumns[$i] == "version" )
-								{
-									/* Special output formatting for \'version\' column */
-									$row[] = ($aRow[ $aColumns[$i] ]=="0") ? \'-\' : $aRow[ $aColumns[$i] ];
-								}
-								else if ( $aColumns[$i] != "" )
-								{
-									/* General output */
-									$row[] = $aRow[ $aColumns[$i] ];
-								}
-							}
-							$output["aaData"][] = $row;
-						}
+					$sIndexColumn = "'.$index_column.'";
+					$sTable = "'.$database_table_name.'";
 					
-						echo json_encode( $output );
-						die();
-					}';
-			
-			$handle = fopen($server_php_file_name, 'w');
-			fwrite($handle, $str_content);
-			fclose($handle);
-		}		
+					$sLimit = "";
+					if ( isset( $_REQUEST["iDisplayStart"] ) && $_REQUEST["iDisplayLength"] != "-1" )
+					{
+						$sLimit = "LIMIT ".$wpdb->escape( $_REQUEST["iDisplayStart"] ).", ".
+							$wpdb->escape( $_REQUEST["iDisplayLength"] );
+					}
+				
+					/*
+					 * Ordering
+					 */
+					$sOrder = "";
+					if ( isset( $_REQUEST["iSortCol_0"] ) )
+					{
+						$sOrder = "ORDER BY  ";
+						for ( $i=0 ; $i<intval( $_REQUEST["iSortingCols"] ) ; $i++ )
+						{
+							if ( $_REQUEST[ "bSortable_".intval($_REQUEST["iSortCol_".$i]) ] == "true" )
+							{
+								$sOrder .= "`".$aColumns[ intval( $_REQUEST["iSortCol_".$i] ) ]."` ".
+								 	$wpdb->escape( $_REQUEST["sSortDir_".$i] ) .", ";
+							}
+						}
+				
+						$sOrder = substr_replace( $sOrder, "", -2 );
+						if ( $sOrder == "ORDER BY" )
+						{
+							$sOrder = "";
+						}
+					}
+				
+					$sWhere = "";
+					if ( isset($_REQUEST["sSearch"]) && $_REQUEST["sSearch"] != "" )
+					{
+						$sWhere = "WHERE (";
+						for ( $i=0 ; $i<count($aColumns) ; $i++ )
+						{
+							$sWhere .= "`".$aColumns[$i]."` LIKE \'%".$wpdb->escape( $_REQUEST["sSearch"] )."%\' OR ";
+						}
+						$sWhere = substr_replace( $sWhere, "", -3 );
+						$sWhere .= ")";
+					}
+				
+					/*
+					 * SQL queries
+					 * Get data to display
+					 */
+					$sQuery = "
+						SELECT SQL_CALC_FOUND_ROWS `".str_replace(" , ", " ", implode("`, `", $aColumns))."`
+						FROM   $sTable
+						$sWhere
+						$sOrder
+						$sLimit
+						";	
+					
+					$rResult = $wpdb->get_results($sQuery,ARRAY_A);
+					
+					$sQuery = "
+						SELECT FOUND_ROWS()
+					";
+					$aResultFilterTotal=$wpdb->get_results($sQuery,ARRAY_N);
+					$iFilteredTotal = $aResultFilterTotal[0];
+				
+					$sQuery = "
+						SELECT COUNT(`".$sIndexColumn."`)
+						FROM   $sTable
+					";
+					$aResultTotal=$wpdb->get_results($sQuery,ARRAY_N);
+					$iTotal = $aResultTotal[0];
+				
+					/*
+					 * Output
+					 */
+					$output = array(
+						"sEcho" => intval($_REQUEST["sEcho"]),
+						"iTotalRecords" => $iTotal,
+						"iTotalDisplayRecords" => $iFilteredTotal,
+						"aaData" => array()
+					);
+					
+					foreach($rResult as $aRow)
+					{
+						$row = array();
+						for ( $i=0 ; $i<count($aColumns) ; $i++ )
+						{
+							if ( $aColumns[$i] == "version" )
+							{
+								/* Special output formatting for \'version\' column */
+								$row[] = ($aRow[ $aColumns[$i] ]=="0") ? \'-\' : $aRow[ $aColumns[$i] ];
+							}
+							else if ( $aColumns[$i] != "" )
+							{
+								/* General output */
+								$row[] = $aRow[ $aColumns[$i] ];
+							}
+						}
+						$output["aaData"][] = $row;
+					}
+				
+					echo json_encode( $output );
+					die();
+				}';
+		
+		$handle = fopen($server_php_file_name, 'w');
+		fwrite($handle, $str_content);
+		fclose($handle);
 	}
 }
