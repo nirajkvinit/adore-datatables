@@ -438,19 +438,19 @@ function fn_adt_register_javascripts()
 	}	
 	
 	//Web Assets
-	wp_register_script('datatable_js', 'http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js', array(jquery), $static_version,TRUE);
-	wp_register_script('bootstrap_datatable_js', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js', array(jquery), $static_version,TRUE);	
-	wp_register_script('jqueryui_datatable_js', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/jqueryui/dataTables.jqueryui.js', array(jquery), $static_version,TRUE);
+	wp_register_script('datatable_js', 'http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js', array('jquery'), $static_version,TRUE);
+	wp_register_script('bootstrap_datatable_js', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js', array('jquery'), $static_version,TRUE);	
+	wp_register_script('jqueryui_datatable_js', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/jqueryui/dataTables.jqueryui.js', array('jquery'), $static_version,TRUE);
 	
 	
 	//Javascript for Demo Adore Datatable
-	wp_register_script('demo_datatable_js', plugins_url('/assets/js/demo_datatables.js', dirname(__FILE__) ), array(jquery), $dynamic_version,TRUE); //Ref. http://codex.wordpress.org/Function_Reference/plugins_url	
+	wp_register_script('demo_datatable_js', plugins_url('/assets/js/demo_datatables.js', dirname(__FILE__) ), array('jquery'), $dynamic_version,TRUE); //Ref. https://codex.wordpress.org/Function_Reference/plugins_url	
 	
 	//Adore Datatable Custom Javascript Code
-	wp_register_script('adt_custom_js', plugins_url('/assets/js/adt_custom_js.js', dirname(__FILE__) ), array(jquery), $adt_js_version,TRUE); //Ref. http://codex.wordpress.org/Function_Reference/plugins_url
+	wp_register_script('adt_custom_js', plugins_url('/assets/js/adt_custom_js.js', dirname(__FILE__) ), array('jquery'), $adt_js_version,TRUE); //Ref. https://codex.wordpress.org/Function_Reference/plugins_url
 	
 	//Javascript for Adore Datatable Admin Control Panel
-	wp_register_script('datatables_admin_js', plugins_url('/assets/js/adore-datatables-admin.js', dirname(__FILE__) ), array(jquery), $dynamic_version,TRUE); //Ref. http://codex.wordpress.org/Function_Reference/plugins_url	
+	wp_register_script('datatables_admin_js', plugins_url('/assets/js/adore-datatables-admin.js', dirname(__FILE__) ), array('jquery'), $dynamic_version,TRUE); //Ref. https://codex.wordpress.org/Function_Reference/plugins_url	
 }
 
 /**
