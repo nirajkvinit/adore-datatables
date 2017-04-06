@@ -3,7 +3,7 @@
 
 Using this wordpress plugin, you can use jQuery Datatables in your wordpress pages/posts.
 
-# Current Version: 0.0.4 (Fully functional Beta release)
+# Current Version: 0.0.5 (Fully functional Beta release)
 
 # Installation Guide
 

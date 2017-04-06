@@ -3,7 +3,7 @@
 Plugin Name: Adore Datatables
 Plugin URI: https://github.com/adoreits/adore-datatables
 Description: Adore Datatables (Wordpress and Datatables Integration Project). Use the shortcode [adt_demo_datatables] to load the demo datatable.
-Version: 0.0.4
+Version: 0.0.5
 Author: Niraj Kumar (Adore ITS)
 Author URI: http://www.adoreits.com/
 */
@@ -41,7 +41,7 @@ function fn_create_adt_table()
 	$charset_collate = $wpdb->get_charset_collate();
 	
 	//create table with dbDelta
-	/*Example reference http://codex.wordpress.org/Creating_Tables_with_Plugins */
+	/*Example reference https://codex.wordpress.org/Creating_Tables_with_Plugins */
 	
 	$sql="CREATE TABLE ".$table_name." (
 	  id int(10) NOT NULL AUTO_INCREMENT,
@@ -57,7 +57,7 @@ function fn_create_adt_table()
 	dbDelta( $sql );
 	
 	$str_sql="
-		CREATE TABLE IF NOT EXISTS ".adore_datatable_settings." (
+		CREATE TABLE IF NOT EXISTS adore_datatable_settings (
 			adt_id INT(10) NOT NULL AUTO_INCREMENT,
 			adt_table_name TEXT NOT NULL,
 			adt_table_slug TEXT NOT NULL,
