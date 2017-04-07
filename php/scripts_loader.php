@@ -4,6 +4,7 @@
  * Function to register Javascript and CSS Files for Adore Datatables
  */
 add_action('init', 'fn_adt_register_scripts');
+
 function fn_adt_register_scripts() 
 {
 	fn_adt_register_styles();	
@@ -14,12 +15,76 @@ function fn_adt_register_scripts()
  * Enqueue Javascript and CSS files for Adore Datatables
  */
 add_action('wp_footer', 'fn_print_adt_scripts');
+
+								 
+																									 
+															  
+
 function fn_print_adt_scripts() 
 {
 	//Reference "The Jedi Knight way" section - http://scribu.net/wordpress/optimal-script-loading.html
 	global $add_demo_adt_scripts, $adt_global, $adt_options;
 	
 	$theme='';
+
+								  
+				  
+										 
+
+							  
+										  
+										  
+
+						
+											   
+																												  
+	 
+
+															
+											  
+											   
+												   
+														 
+
+							 
+							 
+													 
+													  
+				 
+															
+												  
+															
+					  
+										
+													 
+														 
+													 
+				 
+														   
+												  
+														   
+					  
+					
+												  
+												  
+					  
+		 
+
+						   
+										   
+
+											   
+							   
+													
+										   
+
+																											  
+
+		   
+																											
+																										   
+		   
+	 
 
 	if ($add_demo_adt_scripts)
 	{
@@ -95,6 +160,18 @@ function fn_print_adt_scripts()
 function fn_adt_inline_script()
 {
 	global $post, $adt_global, $adt_options;
+
+	   
+																								 
+	   
+						 
+
+															
+											   
+
+										   
+
+
 	/**
 	 * First make the HTML Datatable then consider making the server side datatable by javascript
 	 */
@@ -106,6 +183,7 @@ function fn_adt_inline_script()
 			
 		$adt_array=$adt_global[$post_id];
 		
+
 		$str_additional_script='';
 		
 		$str_return='
@@ -119,8 +197,51 @@ function fn_adt_inline_script()
 			//call function to create server processing files
 			$datatable_json=json_encode($value);
 			
+			  
+								
+								   
+			   
 			fn_adt_server_side_files_maker($key,$datatable_json);			
 			
+
+							   
+												
+											   
+														 
+												   
+													   
+											 
+														   
+														 
+																				 
+								   
+														 
+													 
+
+									 
+												   
+										
+			 
+
+										
+											   
+										   
+			 
+									 
+											
+									
+			 
+
+										  
+												 
+											 
+			 
+
+						  
+								  
+												   
+			 
+
 			$table_slug=$key;
 			$table_id=$value['html_table_id'];
 			$table_type=$value['table_type'];
@@ -375,6 +496,10 @@ function fn_adt_inline_script()
  * Enqueue Javascript for Adore Datatable Admin Control Panel 
  */
 add_action('admin_enqueue_scripts', 'fn_adt_admin_load_scripts');
+
+										   
+							  
+
 function fn_adt_admin_load_scripts($hook) 
 { 
 	global $adt_settings_page;	
@@ -390,6 +515,7 @@ function fn_adt_admin_load_scripts($hook)
 
 /**
  * Function to register CSS Files
+  
  */
 function fn_adt_register_styles()
 {
@@ -398,6 +524,7 @@ function fn_adt_register_styles()
 	
 	
 	$adt_css_version=get_option('adt_css_version');
+
 	if($adt_css_version==FALSE)
 	{
 		$adt_css_version=1;
@@ -406,13 +533,13 @@ function fn_adt_register_styles()
 	    add_option( 'adt_css_version', $adt_css_version, $deprecated, $autoload );			
 	}
 	
-	//Web Assets	
-	wp_register_style('datatable_css', 'http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css',array(),$static_version,'all');
-	wp_register_style('bootstrap_datatable_css', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css',array(),$static_version,'all');
-	wp_register_style('jqueryui_datatable_css', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/jqueryui/dataTables.jqueryui.css',array(),$static_version,'all');
+	//Web Assets
+    wp_register_style('datatable_css' , '//cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css' , array() , $static_version , 'all');
+    wp_register_style('bootstrap_datatable_css' , '//cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css' , array() , $static_version , 'all');
+    wp_register_style('jqueryui_datatable_css' , '//cdn.datatables.net/1.10.13/css/dataTables.jqueryui.min.css' , array() , $static_version , 'all');
 	
 	//bootstrap css
-	wp_register_style('bootstrap_css', 'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css',array(),$static_version,'all');
+	wp_register_style('bootstrap_css' , '//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' , array() , $static_version , 'all');
 	//custom adore datatable css
 	wp_register_style('adt_custom_css', plugins_url('/assets/css/adt_custom_css.css', dirname(__FILE__) ),array(),$adt_css_version,'all');
 	
@@ -437,10 +564,10 @@ function fn_adt_register_javascripts()
 	    add_option( 'adt_js_version', $adt_js_version, $deprecated, $autoload );			
 	}	
 	
-	//Web Assets
-	wp_register_script('datatable_js', 'http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js', array('jquery'), $static_version,TRUE);
-	wp_register_script('bootstrap_datatable_js', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js', array('jquery'), $static_version,TRUE);	
-	wp_register_script('jqueryui_datatable_js', 'http://cdn.datatables.net/plug-ins/f2c75b7247b/integration/jqueryui/dataTables.jqueryui.js', array('jquery'), $static_version,TRUE);
+	 //Web Assets
+    wp_register_script('datatable_js' , '//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js' , array('jquery') , $static_version , TRUE);
+    wp_register_script('bootstrap_datatable_js' , '//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js' , array('jquery') , $static_version , TRUE);
+    wp_register_script('jqueryui_datatable_js' , '//cdn.datatables.net/1.10.13/js/dataTables.jqueryui.js' , array('jquery') , $static_version , TRUE);
 	
 	
 	//Javascript for Demo Adore Datatable
