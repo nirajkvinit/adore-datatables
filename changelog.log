@@ -1,8 +1,14 @@
+0.0.6   Release Date    10-4-2017
+------------------------------------------------------------------------
+* Datatable are stored only in database and not as php files.
+* Various code rewrites
+* i18n compatible
+
 0.0.3	Release Date	20-03-2015
 ------------------------------------------------------------------------
 * Removing ADT slug, only using ADT ID in shortcode.
 * User can delete any ADT instance.
-* fixed some bugs. 
+* fixed some bugs.
 
 0.0.3	Release Date	20-03-2015
 ------------------------------------------------------------------------
@@ -35,7 +41,7 @@
 * Demo Datatable shortcode [adt_demo_datatables]
 
 
- 
+
 
 
 
