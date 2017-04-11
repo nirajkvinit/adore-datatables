@@ -3,7 +3,7 @@
 
 Using this wordpress plugin, you can use jQuery Datatables in your wordpress pages/posts.
 
-# Current Version: 0.0.5 (Fully functional Beta release)
+# Current Version: 0.0.6 (Fully functional Beta release)
 
 # Installation Guide
 
@@ -29,9 +29,9 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 
 1. Current plugin is still under Testing. Need to implement many features. Please checkout Project Roadmap for more details.
 
-2. Some features are under development, so you may find them missing. Please create a ticket in the Project's github page. 
+2. Some features are under development, so you may find them missing. Please create a ticket in the Project's github page.
 
-# Features 
+# Features
 
 * Create Datatable based on your existing database tables/views
 
@@ -39,9 +39,9 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 
 * Universal or Individual Column Filtering (Under testing. Not available in release 0.0.3)
 
-* Add the dynamically generated datatable to anywhere in the page/post by shortcode. 
+* Add the dynamically generated datatable to anywhere in the page/post by shortcode.
 
 
 # Features Requests
- 
+
 * Please create a ticket in the github page to request for features.
