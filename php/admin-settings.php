@@ -63,6 +63,12 @@ function fn_adore_datatables_main_settings_page()
 	echo $str_return;
 }
 
+/**
+ *
+ * @global type $wpdb
+ * @return string
+ * @version 2, 19/4/2017, lenasterg
+ */
 function fn_adt_admin_main_content()
 {
 	global $wpdb;
@@ -84,7 +90,7 @@ function fn_adt_admin_main_content()
 			<option value="create">'.__('Create a Datatable','adt').'</option>
 	';
 
-	$datatables_db=$wpdb->get_results("SELECT adt_id, adt_table_name, adt_table_slug FROM adore_datatable_settings");
+	$datatables_db=$wpdb->get_results("SELECT adt_id, adt_table_name, adt_table_slug FROM adore_datatable_settings WHERE adt_blog_id=". get_current_blog_id());
 
 	foreach($datatables_db as $datatables)
 	{
@@ -269,7 +275,7 @@ function fn_return_adt_form($adt_id,$slug)
         	<div class="welcome-panel-content">
         		<h3>Shortcode :	</h3>
         		<hr />
-        		<code>[adore-datatables id="'.$adt_id.'"]</code> Or	<code>[adore-datatables table="'.$slug.'"]</code>
+        		<code>[adore-datatables id="'.$adt_id.'"]</code> "'.__('Or','adt').'<code>[adore-datatables table="'.$slug.'"]</code>
         		<input type="submit" value="'.__('Delete this Datatable Instance','adt').'" class="button" id="cmd_delete_adt_instance">
 				<div id="div_adt_delete_result">
 				</div>
@@ -302,7 +308,7 @@ function fn_delete_adt_ajax()
 	}
 
 	//delete datatable from adore_datatable_settings table by id $selected_adt_id
-	$str_sql="DELETE FROM adore_datatable_settings WHERE adt_id=$selected_adt_id";
+	$str_sql="DELETE FROM adore_datatable_settings WHERE adt_id=$selected_adt_id AND adt_blog_id=". get_current_blog_id();
 	$wpdb->query($str_sql);
 
 	_e('Success! Adore Datatable instance was deleted successfully!','adt');
@@ -328,7 +334,7 @@ function fn_update_adt_form($adt_id,$slug)
 		return '';
 	}
 
-	$adt_datatable_dataset=$wpdb->get_results("SELECT * FROM adore_datatable_settings WHERE adt_id=$adt_id");
+	$adt_datatable_dataset=$wpdb->get_results("SELECT * FROM adore_datatable_settings WHERE adt_id=$adt_id AND adt_blog_id=". get_current_blog_id());
 
 	$adt_table_settings='';
 	$adt_name='';
@@ -341,7 +347,7 @@ function fn_update_adt_form($adt_id,$slug)
 		$adt_table_slug=$adt_datatable->adt_table_slug;
 	}
 
-	$tables_sql="select table_name from information_schema.tables where table_schema='".$wpdb->dbname."';";
+	$tables_sql="SELECT table_name FROM information_schema.tables WHERE table_schema='".$wpdb->dbname."';";
 	$tables_db=$wpdb->get_results($tables_sql);
 
 	$str_adt_table_option='
@@ -520,7 +526,7 @@ function fn_create_new_adt_form()
 
 	global $wpdb;
 
-	$tables_sql="select table_name from information_schema.tables where table_schema='".$wpdb->dbname."';";
+	$tables_sql="SELECT table_name FROM information_schema.tables WHERE table_schema='".$wpdb->dbname."';";
 	$tables_db=$wpdb->get_results($tables_sql);
 
 	$str_adt_table_option='
@@ -643,7 +649,7 @@ function fn_show_adt_coulms_ajax()
 						<th>'.__('Visible','adt').'</th>
 						<th>'.__('Searchable','adt').'</th>
 						<th>'.__('Sortable','adt').'</th>
-						<th title="sClass">'.__('CSS Class(es)','adt').'</th>
+						<th title="className">'.__('CSS Class(es)','adt').'</th>
 						<th title="Column Position">'.__('Column Position','adt').'</th>
 					</tr>
 				</thead>
@@ -660,7 +666,7 @@ function fn_show_adt_coulms_ajax()
 					<td align="center"><input type="checkbox" class="chk_adt_column_visible" checked /></td>
 					<td align="center"><input type="checkbox" class="chk_adt_column_searchable" checked /></td>
 					<td align="center"><input type="checkbox" class="chk_adt_column_sortable" checked /></td>
-					<td><input type="text" class="txt_adt_column_sclass" style="width:100%" /></td>
+					<td><input type="text" class="txt_adt_column_className" style="width:100%" /></td>
 					<td align="center"><input type="text" class="txt_adt_column_position small-text" value="'.$column_position.'" /></td>
 				</tr>
 			';
@@ -676,6 +682,11 @@ function fn_show_adt_coulms_ajax()
 }
 
 add_action('wp_ajax_fn_save_adt_table_ajax', 'fn_save_adt_table_ajax');
+
+/**
+ * Saves datatable into adt_settings array
+ * @version 2, 19/4/2017
+ */
 function fn_save_adt_table_ajax()
 {
 	global $wpdb;
@@ -728,7 +739,7 @@ function fn_save_adt_table_ajax()
 	$datatable_slug=sanitize_title($datatable_name);
 
 	//check if datatable name is duplicate or not. we do not allow duplicate as the adore datatable shortcode will be available via ID or SLUG.
-	$str_duplicate_sql="SELECT adt_table_slug FROM adore_datatable_settings WHERE adt_table_slug='$datatable_slug'";
+	$str_duplicate_sql="SELECT adt_table_slug FROM adore_datatable_settings WHERE adt_table_slug='$datatable_slug' AND adt_blog_id=". get_current_blog_id();
 
 	$is_duplicate_adt=$wpdb->get_results($str_duplicate_sql);
 	if(!empty($is_duplicate_adt))
@@ -762,6 +773,7 @@ function fn_save_adt_table_ajax()
 	$datatable_json=json_encode($datatable_array);
 
 	$insert_array=array(
+                'adt_blog_id' => get_current_blog_id(),
 		'adt_table_name'=>$datatable_name,
 		'adt_table_slug'=>$datatable_slug,
 		'adt_table_settings'=>$datatable_json
@@ -1185,8 +1197,7 @@ function fn_adt_js_write($form_url)
 		$adt_js_version=get_option('adt_js_version');
 		if($adt_js_version==FALSE)
 		{
-
-			$deprecated = null;
+                    $deprecated = null;
 		    $autoload = 'no';
 		    add_option( 'adt_js_version', $js_version, $deprecated, $autoload );
 		}
@@ -1197,4 +1208,28 @@ function fn_adt_js_write($form_url)
 		}
 	}
     return $jstext;
+}
+
+
+/**
+ * Javascript strings for translation
+ * @return array
+ * @since 0.0.7
+ * @author lenasterg
+ */
+function fn_adt_admin_js_strings() {
+    $strings = array(
+        'table_no_space' => __("Table ID text cannot have space." , 'adt') ,
+        'selectTable' => __("Please select a Database Table." , 'adt') ,
+        'inputDTname' => __("Please input datatable name." , 'adt') ,
+        'colPosEmpty' => __("Table Column position cannot be empty. Please check your input and try again." , 'adt') ,
+        'colPosNoNum' => __("Table Column position is not a number. Please check your input and try again." , 'adt') ,
+        'colPosDuplicate' => __("Table Column position cannot be duplicate. Please check your input and try again." , 'adt') ,
+        'colPosNegative' => __("Table Column position cannot be a negative number. Please check your input and try again." , 'adt') ,
+        'colPosDecimal' => __("Table Column position cannot be a decimal number. Please check your input and try again." , 'adt') ,
+        'colPosOutOfRange' => __("Table Column position cannot exceed total columns numbers. Please check your input and try again." , 'adt') ,
+        'DeleteThis' => __("Delete this Datatable?" , 'adt') ,
+    );
+
+    return $strings;
 }

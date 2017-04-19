@@ -72,8 +72,8 @@ function fn_print_adt_scripts() {
         //Load custom script to handle the datatable
         wp_enqueue_script('adt_custom_js');
 
-        wp_localize_script('adt_custom_js' , 'AdoreDTAjax' , array('ajaxurl' => admin_url('admin-ajax.php'),
-    ));
+        wp_localize_script('adt_custom_js' , 'AdoreDTAjax' , array('ajaxurl' => admin_url('admin-ajax.php') ,
+        ));
 
         /**
          * Ref
@@ -104,17 +104,18 @@ function fn_adt_inline_script() {
         $adt_array = $adt_global[$post_id];
 
 
-        $str_additional_script = '';
+        $str_additional_script = "";
 
-        $str_return = '
-			<script type="text/javascript">
+
+        $str_return = '<script type="text/javascript">
 				$=jQuery;
 				jQuery(document).ready(function($)
-				{
-		';
+				{';
+
         foreach ( $adt_array as $key => $value ) {
 
-            $adt_id=$key;
+            $lang = fn_adt_get_current_language();
+            $adt_id = $key;
 
             $table_slug = $key;
             $table_id = $value['html_table_id'];
@@ -156,9 +157,9 @@ function fn_adt_inline_script() {
 
             $str_row_callback = '';
             if ( !empty($fn_row_callback) ) {
-                $str_row_callback = '
-					"fnRowCallback": function( nRow, aData, iDisplayIndex )
-			         {
+
+                $str_row_callback = '"fnRowCallback": function( nRow, aData, iDisplayIndex )         {
+
 			         	' . $fn_row_callback . '
 				     }';
             }
@@ -181,14 +182,14 @@ function fn_adt_inline_script() {
                     $is_sortable = '"orderable": false,';
                 }
 
-                $str_col_defs .= '
-					{
+                $str_col_defs .= '{
+
 		                "targets": [ ' . $col_key . ' ],
 		                ' . $is_visible . '
 		                ' . $is_searchable . '
 		                ' . $is_sortable . '
-		            },
-				';
+                                 "className": "' . $col_value['className'] . '",
+		            },';
             }
 
             $str_col_defs .= '],';
@@ -202,9 +203,12 @@ function fn_adt_inline_script() {
             //more work pending
             if ( $table_type == 'html' ) {
                 $str_return .= '
-					var $' . $adt_table_id . '=$("#' . $table_id . '").dataTable(
+					var ' . $adt_table_id . '=$("#' . $table_id . '").DataTable(
 					{
-				        "bAutoWidth" : ' . $str_autowidth . ',
+				        "autoWidth" : ' . $str_autowidth . ',
+                                            "language": {
+			"url": "//cdn.datatables.net/plug-ins/' . DATATABLES_VERSION . '/i18n/' . $lang . '.json"
+		},
 					    "pagingType": "' . $pagination_type . '",
 					    "searching" : ' . $str_allow_search . ',
 					    "info"	: ' . $str_show_info . ',
@@ -217,134 +221,160 @@ function fn_adt_inline_script() {
             }
             if ( $table_type == 'server' ) {
                 $str_return .= '
-					var $' . $adt_table_id . '=$("#' . $table_id . '").dataTable(
-					{
-				        "bAutoWidth" : ' . $str_autowidth . ',
-					    "pagingType": "' . $pagination_type . '",
-					    "searching" : ' . $str_allow_search . ',
-					    "info"	: ' . $str_show_info . ',
-					    "ordering": ' . $str_allow_ordering . ',
-					    ' . $str_col_defs . '
-					    ' . $str_dom . '
-					    "bProcessing": true,
-					    "bServerSide": true,
-					    "sAjaxSource": AdoreDTAjax.ajaxurl+\'?action=fn_adt_ajax&adt='.$adt_id.'\',
-					    "bDeferRender": true,
-					    "fnServerData": fn' . $adt_table_id . 'Pipeline,
-					    ' . $str_row_callback . '
-				    });
+
+//
+// Pipelining function for DataTables. To be used to the `ajax` option of DataTables
+//
+$.fn.dataTable.pipeline = function ( opts ) {
+	// Configuration options
+	var conf = $.extend( {
+		pages: 5,     // number of pages to cache
+		url: "",      // script url
+		data: null,   // function or object with parameters to send to the server
+		              // matching how `ajax.data` works in DataTables
+		method: "GET" // Ajax HTTP method
+	}, opts );
+
+	// Private variables for storing the cache
+	var cacheLower = -1;
+	var cacheUpper = null;
+	var cacheLastRequest = null;
+	var cacheLastJson = null;
+
+	return function ( request, drawCallback, settings ) {
+		var ajax          = false;
+		var requestStart  = request.start;
+		var drawStart     = request.start;
+                var requestLength = request.length;
+		var requestEnd    = requestStart + requestLength;
+
+		if ( settings.clearCache ) {
+			// API requested that the cache be cleared
+			ajax = true;
+			settings.clearCache = false;
+		}
+		else if ( cacheLower < 0 || requestStart < cacheLower || requestEnd > cacheUpper ) {
+			// outside cached data - need to make a request
+			ajax = true;
+
+		}
+		else if ( JSON.stringify( request.order )   !== JSON.stringify( cacheLastRequest.order ) ||
+		          JSON.stringify( request.columns ) !== JSON.stringify( cacheLastRequest.columns ) ||
+		          JSON.stringify( request.search )  !== JSON.stringify( cacheLastRequest.search )
+		) {
+			// properties changed (ordering, columns, searching)
+			ajax = true;
+		}
+
+		// Store the request for checking next time around
+		cacheLastRequest = $.extend( true, {}, request );
+
+		if ( ajax ) {
+			// Need data from the server
+			if ( requestStart < cacheLower ) {
+				requestStart = requestStart - (requestLength*(conf.pages-1));
+
+				if ( requestStart < 0 ) {
+					requestStart = 0;
+				}
+			}
+
+			cacheLower = requestStart;
+			cacheUpper = requestStart + (requestLength * conf.pages);
+
+			request.start = requestStart;
+			request.length = requestLength*conf.pages;
+
+			// Provide the same `data` options as DataTables.
+			if ( $.isFunction ( conf.data ) ) {
+				// As a function it is executed with the data object as an arg
+				// for manipulation. If an object is returned, it is used as the
+				// data object to submit
+				var d = conf.data( request );
+				if ( d ) {
+					$.extend( request, d );
+				}
+			}
+			else if ( $.isPlainObject( conf.data ) ) {
+				// As an object, the data given extends the default
+				$.extend( request, conf.data );
+			}
 
 
-				';
-                $str_additional_script .= '
-					var ' . $adt_table_id . '_cache = {
-						iCacheLower: -1
-					};
 
-					function fn' . $adt_table_id . 'Pipeline ( sSource, aoData, fnCallback ) {
-						var iPipe = 5; /* Ajust the pipe size */
+			settings.jqXHR = $.ajax( {
+				"type":     conf.method,
+				"url":      conf.url,
+				"data":     request,
+				"dataType": "json",
+				"cache":    false,
+				"success":  function ( json ) {
 
-						var bNeedServer = false;
-						var sEcho = fnGetKey(aoData, "sEcho");
-						var iRequestStart = fnGetKey(aoData, "iDisplayStart");
-						var iRequestLength = fnGetKey(aoData, "iDisplayLength");
-						var iRequestEnd = iRequestStart + iRequestLength;
-						' . $adt_table_id . '_cache.iDisplayStart = iRequestStart;
+					cacheLastJson = $.extend(true, {}, json);
 
-						/* outside pipeline? */
-						if ( ' . $adt_table_id . '_cache.iCacheLower < 0 || iRequestStart < ' . $adt_table_id . '_cache.iCacheLower || iRequestEnd > ' . $adt_table_id . '_cache.iCacheUpper )
-						{
-							bNeedServer = true;
-						}
+					if ( cacheLower != drawStart ) {
 
-						/* sorting etc changed? */
-						if ( ' . $adt_table_id . '_cache.lastRequest && !bNeedServer )
-						{
-							for( var i=0, iLen=aoData.length ; i<iLen ; i++ )
-							{
-								if ( aoData[i].name != "iDisplayStart" && aoData[i].name != "iDisplayLength" && aoData[i].name != "sEcho" )
-								{
-									if ( aoData[i].value != ' . $adt_table_id . '_cache.lastRequest[i].value )
-									{
-										bNeedServer = true;
-										break;
-									}
-								}
-							}
-						}
-
-						/* Store the request for checking next time around */
-						' . $adt_table_id . '_cache.lastRequest = aoData.slice();
-
-						if ( bNeedServer )
-						{
-							if ( iRequestStart < ' . $adt_table_id . '_cache.iCacheLower )
-							{
-								iRequestStart = iRequestStart - (iRequestLength*(iPipe-1));
-								if ( iRequestStart < 0 )
-								{
-									iRequestStart = 0;
-								}
-							}
-
-							' . $adt_table_id . '_cache.iCacheLower = iRequestStart;
-							' . $adt_table_id . '_cache.iCacheUpper = iRequestStart + (iRequestLength * iPipe);
-							' . $adt_table_id . '_cache.iDisplayLength = fnGetKey( aoData, "iDisplayLength" );
-							fnSetKey( aoData, "iDisplayStart", iRequestStart );
-							fnSetKey( aoData, "iDisplayLength", iRequestLength*iPipe );
-
-							$.getJSON( sSource, aoData, function (json) {
-								/* Callback processing */
-								' . $adt_table_id . '_cache.lastJson = jQuery.extend(true, {}, json);
-
-								if ( ' . $adt_table_id . '_cache.iCacheLower != ' . $adt_table_id . '_cache.iDisplayStart )
-								{
-									json.aaData.splice( 0, ' . $adt_table_id . '_cache.iDisplayStart-' . $adt_table_id . '_cache.iCacheLower );
-								}
-								json.aaData.splice( ' . $adt_table_id . '_cache.iDisplayLength, json.aaData.length );
-
-								fnCallback(json);
-							} );
-						}
-						else
-						{
-							json = jQuery.extend(true, {}, ' . $adt_table_id . '_cache.lastJson);
-							json.sEcho = sEcho; /* Update the echo for each response */
-							json.aaData.splice( 0, iRequestStart-' . $adt_table_id . '_cache.iCacheLower );
-							json.aaData.splice( iRequestLength, json.aaData.length );
-							fnCallback(json);
-							return;
-						}
+						json.data.splice( 0, drawStart-cacheLower );
 					}
+					if ( requestLength >= -1 ) {
+						json.data.splice( requestLength, json.data.length );
+					}
+
+					drawCallback( json );
+				}
+			} );
+		}
+		else {
+
+			json = $.extend( true, {}, cacheLastJson );
+			json.draw = request.draw; // Update the echo for each response
+			json.data.splice( 0, requestStart-cacheLower );
+			json.data.splice( requestLength, json.data.length );
+
+			drawCallback(json);
+
+		}
+
+	}
+};
+
+// Register an API method that will empty the pipelined data, forcing an Ajax
+// fetch on the next draw (i.e. `table.clearPipeline().draw()`)
+$.fn.dataTable.Api.register( "clearPipeline()", function () {
+	return this.iterator( "table", function ( settings ) {
+		settings.clearCache = true;
+	} );
+} );
+
+				var ' . $table_id . ' =	$("#' . $table_id . '").DataTable(
+					{
+				        "autoWidth" : ' . $str_autowidth . ',
+                                        "language": {
+                                            "url": "//cdn.datatables.net/plug-ins/' . DATATABLES_VERSION . '/i18n/' . $lang . '.json"
+                                        },
+                                        "pagingType": "' . $pagination_type . '",
+                                        "searching" : ' . $str_allow_search . ',
+                                        "info"	: ' . $str_show_info . ',
+                                        "ordering": ' . $str_allow_ordering . ',
+                                        ' . $str_col_defs . '
+                                        ' . $str_dom . '
+                                        "processing": true,
+                                        "serverSide": true,
+                                        "ajax": $.fn.dataTable.pipeline( {
+                                            url: AdoreDTAjax.ajaxurl+"?action=fn_adt_ajax&adt=' . $adt_id . '",
+                                            pages: 5 // number of pages to cache
+                                            })
+                                            ,   "deferRender": true,
+                                      ' . $str_row_callback . '
+                                });
+
 				';
+                $str_additional_script .= '';
             }
         }
 
-        $str_return .= '
-				});
+        $str_return .= '});
 				' . $str_additional_script . '
-				function fnSetKey( aoData, sKey, mValue )
-				{
-					for ( var i=0, iLen=aoData.length ; i<iLen ; i++ )
-					{
-						if ( aoData[i].name == sKey )
-						{
-							aoData[i].value = mValue;
-						}
-					}
-				}
-
-				function fnGetKey( aoData, sKey )
-				{
-					for ( var i=0, iLen=aoData.length ; i<iLen ; i++ )
-					{
-						if ( aoData[i].name == sKey )
-						{
-							return aoData[i].value;
-						}
-					}
-					return null;
-				}
 			</script>
 		';
         echo $str_return;
@@ -386,9 +416,9 @@ function fn_adt_register_styles() {
     }
 
     //Web Assets
-    wp_register_style('datatable_css' , '//cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css' , array() , $static_version , 'all');
-    wp_register_style('bootstrap_datatable_css' , '//cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css' , array() , $static_version , 'all');
-    wp_register_style('jqueryui_datatable_css' , '//cdn.datatables.net/1.10.13/css/dataTables.jqueryui.min.css' , array() , $static_version , 'all');
+    wp_register_style('datatable_css' , '//cdn.datatables.net/' . DATATABLES_VERSION . '/css/jquery.dataTables.css' , array() , $static_version , 'all');
+    wp_register_style('bootstrap_datatable_css' , '//cdn.datatables.net/' . DATATABLES_VERSION . '/css/dataTables.bootstrap.min.css' , array() , $static_version , 'all');
+    wp_register_style('jqueryui_datatable_css' , '//cdn.datatables.net/' . DATATABLES_VERSION . '/css/dataTables.jqueryui.min.css' , array() , $static_version , 'all');
 
     //bootstrap css
     wp_register_style('bootstrap_css' , '//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' , array() , $static_version , 'all');
@@ -397,7 +427,7 @@ function fn_adt_register_styles() {
 }
 
 /**
- * Function to register JS
+ * Function to register and localize JS
  */
 function fn_adt_register_javascripts() {
     //scripts registration here
@@ -413,9 +443,9 @@ function fn_adt_register_javascripts() {
     }
 
     //Web Assets
-    wp_register_script('datatable_js' , '//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js' , array('jquery') , $static_version , TRUE);
-    wp_register_script('bootstrap_datatable_js' , '//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js' , array('jquery') , $static_version , TRUE);
-    wp_register_script('jqueryui_datatable_js' , '//cdn.datatables.net/1.10.13/js/dataTables.jqueryui.js' , array('jquery') , $static_version , TRUE);
+    wp_register_script('datatable_js' , '//cdn.datatables.net/' . DATATABLES_VERSION . '/js/jquery.dataTables.min.js' , array('jquery') , $static_version , TRUE);
+    wp_register_script('bootstrap_datatable_js' , '//cdn.datatables.net/' . DATATABLES_VERSION . '/js/dataTables.bootstrap.min.js' , array('jquery') , $static_version , TRUE);
+    wp_register_script('jqueryui_datatable_js' , '//cdn.datatables.net/' . DATATABLES_VERSION . '/js/dataTables.jqueryui.js' , array('jquery') , $static_version , TRUE);
 
 
     //Javascript for Demo Adore Datatable
@@ -424,6 +454,9 @@ function fn_adt_register_javascripts() {
     wp_register_script('adt_custom_js' , plugins_url('/assets/js/adt_custom_js.js' , dirname(__FILE__)) , array('jquery') , $adt_js_version , TRUE); //Ref. https://codex.wordpress.org/Function_Reference/plugins_url
     //Javascript for Adore Datatable Admin Control Panel
     wp_register_script('datatables_admin_js' , plugins_url('/assets/js/adore-datatables-admin.js' , dirname(__FILE__)) , array('jquery') , $dynamic_version , TRUE); //Ref. https://codex.wordpress.org/Function_Reference/plugins_url
+
+    $strings = fn_adt_admin_js_strings();
+    wp_localize_script('datatables_admin_js' , 'adt_js_i18n' , $strings);
 }
 
 /**
@@ -439,4 +472,19 @@ function fn_adt_register_jqueryui_css($theme = '') {
     //register various jqueryui themes css
     $cdn_url = 'https://code.jquery.com/ui/' . $jqueryui_version . '/themes/' . $jquery_ui_theme . '/jquery-ui.min.css'; //default theme
     wp_register_style('jqueryui_css' , $cdn_url , array() , '1.1' , 'all');
+}
+
+/**
+ * Fetches the english name for the current locale
+ *
+ * @return string
+ * @since 0.0.7
+ * @author lenasterg
+ */
+function fn_adt_get_current_language() {
+    require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+    $translations = wp_get_available_translations();
+    $current_lang = get_locale();
+
+    return ($translations[$current_lang]['english_name']);
 }

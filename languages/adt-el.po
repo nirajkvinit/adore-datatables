@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Adore Databases\n"
 "Report-Msgid-Bugs-To: Translator Name <translations@example.com>\n"
-"POT-Creation-Date: 2017-04-10 16:21+0300\n"
+"POT-Creation-Date: 2017-04-11 15:06+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Lena Stergatu <stergatu@cti.gr>\n"
 "Language-Team: aqua6617@yahoo.com\n"
@@ -23,7 +23,7 @@ msgstr ""
 "X-Generator: Poedit 2.0\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: index.php:152 php/admin-settings.php:56
+#: index.php:153 php/admin-settings.php:56
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
@@ -79,14 +79,12 @@ msgid ""
 msgstr ""
 
 #: php/admin-settings.php:214
-#, fuzzy
 msgid "Load Bootstrap through plugin"
-msgstr "Ενεργοποιήστε το πρόσθετο μέσω του μενού \"Πρόσθετα\" στο WordPress"
+msgstr ""
 
 #: php/admin-settings.php:215
-#, fuzzy
 msgid "Load jQueryUI through plugin"
-msgstr "Ενεργοποιήστε το πρόσθετο μέσω του μενού \"Πρόσθετα\" στο WordPress"
+msgstr ""
 
 #: php/admin-settings.php:228
 msgid "Save Settings"
@@ -111,10 +109,8 @@ msgid "Success! Adore Datatable instance was deleted successfully!"
 msgstr "Επιτυχία! To αντικείμενο Adore Datatable διαγράφηκε με επιτυχία!"
 
 #: php/admin-settings.php:349 php/admin-settings.php:528
-#, fuzzy
-#| msgid "Select a Datatable"
 msgid "Select a Table"
-msgstr "Επιλέξτε ένα DataTable"
+msgstr "Επιλέξτε ένα πίνακα"
 
 #: php/admin-settings.php:384 php/admin-settings.php:544
 msgid "Server-side processing"
@@ -141,10 +137,8 @@ msgid "Simple"
 msgstr "Απλό"
 
 #: php/admin-settings.php:453
-#, fuzzy
-#| msgid "Create a Datatable"
 msgid "Update Adore Datatable"
-msgstr "Επιλέξτε ένα DataTable"
+msgstr ""
 
 #: php/admin-settings.php:456
 msgid "Name using which you would recognize your datatable instance"
@@ -159,9 +153,8 @@ msgid "CSS ID attribute for the HTML Table"
 msgstr ""
 
 #: php/admin-settings.php:457
-#, fuzzy
 msgid "Table ID"
-msgstr "ID:"
+msgstr "ID πίνακα"
 
 #: php/admin-settings.php:457 php/admin-settings.php:458
 #: php/admin-settings.php:565 php/admin-settings.php:566
@@ -173,9 +166,8 @@ msgid "Additional class for the HTML Table"
 msgstr ""
 
 #: php/admin-settings.php:458
-#, fuzzy
 msgid "Table Class"
-msgstr "Τάξη"
+msgstr "CSS class πίνακα"
 
 #: php/admin-settings.php:466
 msgid ""
@@ -184,31 +176,24 @@ msgid ""
 msgstr ""
 
 #: php/admin-settings.php:466
-#, fuzzy
 msgid "Table Type"
-msgstr "Τύπος"
+msgstr "Τύπος πίνακα"
 
 #: php/admin-settings.php:467 php/admin-settings.php:575
-#, fuzzy
-#| msgid "Datatable Styling"
 msgid "Datatable Pagination Types"
-msgstr "Σελιδοποίηση"
+msgstr "Τύπος σελιδοποίησης Datatable"
 
 #: php/admin-settings.php:467 php/admin-settings.php:575
 msgid "Pagination"
 msgstr "Σελιδοποίηση"
 
 #: php/admin-settings.php:468 php/admin-settings.php:576
-#, fuzzy
-#| msgid "Select a Datatable"
 msgid "Select a Database Table"
-msgstr "Αδυναμία επιλογής βάσης δεδομένων"
+msgstr "Επιλέξτε ένα πίνακα από την βάση δεδομένων"
 
 #: php/admin-settings.php:479 php/admin-settings.php:587
-#, fuzzy
 msgid "Allow Search"
-msgstr ""
-"Να επιτρέπεται στις μηχανές αναζήτησης να ευρετηριάζουν αυτό τον ιστότοπο"
+msgstr "Eπιτρέπεται αναζήτηση"
 
 #: php/admin-settings.php:480 php/admin-settings.php:588
 msgid "Ordering"
@@ -243,16 +228,12 @@ msgid ""
 msgstr ""
 
 #: php/admin-settings.php:502 php/admin-settings.php:610
-#, fuzzy
-#| msgid "Select a Datatable"
 msgid "Save Datatable"
-msgstr "Επιλέξτε ένα DataTable"
+msgstr "Αποθήκευση DataTable"
 
 #: php/admin-settings.php:561
-#, fuzzy
-#| msgid "Create a Datatable"
 msgid "Create a new Adore Datatable!"
-msgstr "Δημιουργήστε ένα DataTable"
+msgstr "Δημιουργήστε ένα Adore DataTable!"
 
 #: php/admin-settings.php:564
 msgid ""
@@ -284,9 +265,8 @@ msgid "Column select error!"
 msgstr ""
 
 #: php/admin-settings.php:641
-#, fuzzy
 msgid "Name"
-msgstr "Όνομα*"
+msgstr "Όνομα"
 
 #: php/admin-settings.php:642
 msgid "Title"
@@ -343,10 +323,60 @@ msgid "Settings values are empty. Please try again!"
 msgstr ""
 
 #: php/admin-settings.php:844
-#, fuzzy
-#| msgid "Success! Adore Datatable instance was deleted successfully!"
 msgid "Adore Datatables Settings were saved successfully!"
-msgstr "Επιτυχία! To αντικείμενο Adore Datatable διαγράφηκε με επιτυχία!"
+msgstr ""
+
+#: php/admin-settings.php:1211
+msgid "Table ID text cannot have space."
+msgstr ""
+
+#: php/admin-settings.php:1212
+msgid "Please select a Database Table."
+msgstr "Επιλέξτε ένα πίνακα από την βάση δεδομένων."
+
+#: php/admin-settings.php:1213
+#, fuzzy
+#| msgid "Select a Datatable"
+msgid "Please input datatable name."
+msgstr "Επιλέξτε ένα DataTable"
+
+#: php/admin-settings.php:1214
+msgid ""
+"Table Column position cannot be empty. Please check your input and try again."
+msgstr ""
+
+#: php/admin-settings.php:1215
+msgid ""
+"Table Column position is not a number. Please check your input and try again."
+msgstr ""
+
+#: php/admin-settings.php:1216
+msgid ""
+"Table Column position cannot be duplicate. Please check your input and try "
+"again."
+msgstr ""
+
+#: php/admin-settings.php:1217
+msgid ""
+"Table Column position cannot be a negative number. Please check your input "
+"and try again."
+msgstr ""
+
+#: php/admin-settings.php:1218
+msgid ""
+"Table Column position cannot be a decimal number. Please check your input "
+"and try again."
+msgstr ""
+
+#: php/admin-settings.php:1219
+msgid ""
+"Table Column position cannot exceed total columns numbers. Please check your "
+"input and try again."
+msgstr ""
+
+#: php/admin-settings.php:1220
+msgid "Delete this Datatable?"
+msgstr "Να διαγραφεί αυτός ο Datatable;"
 
 #: php/adore-datatables.php:58
 msgid ""

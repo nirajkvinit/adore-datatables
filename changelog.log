@@ -1,3 +1,9 @@
+0.0.7   Release Date    10-4-2017
+------------------------------------------------------------------------
+* Uses the wordpress locale for Datatables translations
+* Add className for each column
+* Add adt_blog_id into the adore_datatable_settings
+
 0.0.6   Release Date    10-4-2017
 ------------------------------------------------------------------------
 * Datatable are stored only in database and not as php files.

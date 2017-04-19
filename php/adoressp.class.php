@@ -80,8 +80,8 @@ class adoreSSP {
     static function limit($request) {
         $limit = '';
 
-        if ( isset($request['iDisplayStart']) && $request['iDisplayLength'] != -1 ) {
-            $limit = "LIMIT " . intval($request['iDisplayStart']) . ", " . intval($request['iDisplayLength']);
+        if ( isset($request['start']) && $request['length'] != -1 ) {
+            $limit = "LIMIT " . intval($request['start']) . ", " . intval($request['length']);
         }
 
         return $limit;
@@ -93,24 +93,35 @@ class adoreSSP {
      * @todo fix to match orderOld
      */
     static function order($request , $columns) {
-        $sOrder = "";
-        if ( isset($request["iSortCol_0"]) ) {
-            $sOrder = "ORDER BY  ";
-            for ( $i = 0; $i < intval($request["iSortingCols"]); $i++ ) {
-                if ( $request["bSortable_" . intval($request["iSortCol_" . $i])] == "true" ) {
-                    $sOrder .= "`" . $columns[intval($request["iSortCol_" . $i])] . "` " .
-                        esc_sql($request["sSortDir_" . $i]) . ", ";
+          $order = '';
+
+        if ( isset($request['order']) && count($request['order']) ) {
+            $orderBy = array();
+            $dtColumns = self::pluck($columns , 'dt');
+
+            for ( $i = 0 , $ien = count($request['order']); $i < $ien; $i++ ) {
+                // Convert the column index into the column data property
+                $columnIdx = intval($request['order'][$i]['column']);
+                $requestColumn = $request['columns'][$columnIdx];
+
+                $columnIdx = array_search($requestColumn['data'] , $dtColumns);
+                $column = $columns[$columnIdx];
+
+
+                if ( $requestColumn['orderable'] == 'true' ) {
+                    $dir = $request['order'][$i]['dir'] === 'asc' ?
+                        'ASC' :
+                        'DESC';
+
+                    $orderBy[] = '`' . $column . '` ' . $dir;
                 }
             }
 
-            $sOrder = substr_replace($sOrder , "" , -2);
-            if ( $sOrder == "ORDER BY" ) {
-                $sOrder = "";
-            }
+            $order = 'ORDER BY ' . implode(', ' , $orderBy);
         }
-        return $sOrder;
-    }
 
+        return $order;
+    }
 
 
      /**
@@ -123,10 +134,11 @@ class adoreSSP {
     static function filter($request , $columns) {
 
         $sWhere = "";
-        if ( isset($request["sSearch"]) && $request["sSearch"] != "" ) {
+      if ( isset($request['search']) && $request['search']['value'] != '' ) {
+            $str = $request['search']['value'];
             $sWhere = "WHERE (";
             for ( $i = 0; $i < count($columns); $i++ ) {
-                $sWhere .= "`" . $columns[$i] . "` LIKE '%" . esc_sql($request["sSearch"]) . "%' OR ";
+                $sWhere .= "`" . $columns[$i] . "` LIKE '%" . esc_sql($str) . "%' OR ";
             }
             $sWhere = substr_replace($sWhere , "" , -3);
             $sWhere .= ")";
@@ -134,6 +146,7 @@ class adoreSSP {
 
         return $sWhere;
     }
+
 
  /**
      * Ordering
@@ -144,7 +157,7 @@ class adoreSSP {
      *  @param  array $columns Column information array
      *  @return string SQL order by clause
      */
-    static function orderOld($request , $columns) {
+    static function orderold($request , $columns) {
         $order = '';
 
         if ( isset($request['order']) && count($request['order']) ) {
@@ -158,6 +171,7 @@ class adoreSSP {
 
                 $columnIdx = array_search($requestColumn['data'] , $dtColumns);
                 $column = $columns[$columnIdx];
+
 
                 if ( $requestColumn['orderable'] == 'true' ) {
                     $dir = $request['order'][$i]['dir'] === 'asc' ?

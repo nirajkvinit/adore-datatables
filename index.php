@@ -3,7 +3,7 @@
 Plugin Name: Adore Datatables
 Plugin URI: https://github.com/adoreits/adore-datatables
 Description: Adore Datatables (Wordpress and Datatables Integration Project). Use the shortcode [adt_demo_datatables] to load the demo datatable.
-Version: 0.0.6
+Version: 0.0.7
 Author: Niraj Kumar (Adore ITS)
 Text Domain: adt
 Author URI: http://www.adoreits.com/
@@ -15,6 +15,7 @@ defined('ABSPATH') or die('adore-datatables');
 
 define("ADT_DEMO_TABLE_NAME", "adt_demo_table");
 define("PLUGIN_ADMIN_PAGE_SLUG", "adore-datatables");
+define("DATATABLES_VERSION", "1.10.13");
 include_once('php/scripts_loader.php');
 include_once('php/admin-settings.php');
 include_once('php/adore-datatables.php');
@@ -30,6 +31,11 @@ define("ADT_SERVER_PROCESSING_FILES_PATH", ADT_PLUGIN_DIR_PATH."adt_files");
 register_activation_hook( __FILE__, 'fn_create_adt_table' );
 register_activation_hook( __FILE__, 'fn_install_adt_data' );
 
+/**
+ *
+ * @global type $wpdb
+ * @version 2, 19/4/2017, lenasterg
+ */
 function fn_create_adt_table()
 {
 	global $wpdb;
@@ -61,6 +67,7 @@ function fn_create_adt_table()
 
 	$str_sql="
 		CREATE TABLE IF NOT EXISTS adore_datatable_settings (
+                        adt_blog_id INT(11) NOT NULL,
 			adt_id INT(10) NOT NULL AUTO_INCREMENT,
 			adt_table_name TEXT NOT NULL,
 			adt_table_slug TEXT NOT NULL,
