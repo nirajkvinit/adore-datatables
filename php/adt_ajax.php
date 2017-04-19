@@ -35,16 +35,11 @@ function fn_adt_ajax() {
 
     $rResult = $wpdb->get_results($sQuery , ARRAY_A);
 
-    $sQuery = "
-						SELECT FOUND_ROWS()
-					";
+    $sQuery = " SELECT FOUND_ROWS() ";
     $aResultFilterTotal = $wpdb->get_results($sQuery , ARRAY_N);
     $iFilteredTotal = $aResultFilterTotal[0];
 
-    $sQuery = "
-						SELECT COUNT(`" . $sIndexColumn . "`)
-						FROM   $sTable
-					";
+    $sQuery = "SELECT COUNT(`" . $sIndexColumn . "`)	FROM   $sTable	";
     $aResultTotal = $wpdb->get_results($sQuery , ARRAY_N);
     $iTotal = $aResultTotal[0];
 
@@ -52,10 +47,12 @@ function fn_adt_ajax() {
      * Output
      */
     $output = array(
-        "sEcho" => intval($_REQUEST["sEcho"]) ,
-        "iTotalRecords" => $iTotal ,
-        "iTotalDisplayRecords" => $iFilteredTotal ,
-        "aaData" => array()
+        "draw" =>  isset($request['draw']) ?
+            intval($request['draw']) :
+            0 ,
+        "recordsTotal" => $iTotal ,
+        "recordsFiltered" => $iFilteredTotal ,
+        "data" => array()
     );
 
     foreach ( $rResult as $aRow ) {
@@ -69,9 +66,8 @@ function fn_adt_ajax() {
                 $row[] = $aRow[$aColumns[$i]];
             }
         }
-        $output["aaData"][] = $row;
+        $output["data"][] = $row;
     }
-
     echo json_encode($output);
     die();
 }

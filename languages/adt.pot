@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: "
 "Adore Databases\n"
 "POT-Creation-Date: "
-"2017-04-10 16:21+0300\n"
+"2017-04-19 10:38+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Your "
 "Name <you@example.com>\n"
@@ -44,11 +44,12 @@ msgstr ""
 "_nc:4c,1,2\n"
 "X-Poedit-Basepath: ..\n"
 "Language: en_US\n"
-"X-Generator: Poedit 2.0\n"
+"X-Generator: Poedit "
+"2.0.1\n"
 "X-Poedit-"
 "SearchPath-0: .\n"
 
-#: index.php:152
+#: index.php:153
 #: php/admin-settings.php:56
 #, fuzzy
 msgid "Settings"
@@ -481,6 +482,78 @@ msgid ""
 "Adore Datatables "
 "Settings were saved "
 "successfully!"
+msgstr ""
+
+#: php/admin-settings.php:1211
+msgid ""
+"Table ID text cannot "
+"have space."
+msgstr ""
+
+#: php/admin-settings.php:1212
+msgid ""
+"Please select a Database "
+"Table."
+msgstr ""
+
+#: php/admin-settings.php:1213
+msgid ""
+"Please input datatable "
+"name."
+msgstr ""
+
+#: php/admin-settings.php:1214
+msgid ""
+"Table Column position "
+"cannot be empty. Please "
+"check your input and try "
+"again."
+msgstr ""
+
+#: php/admin-settings.php:1215
+msgid ""
+"Table Column position is "
+"not a number. Please "
+"check your input and try "
+"again."
+msgstr ""
+
+#: php/admin-settings.php:1216
+msgid ""
+"Table Column position "
+"cannot be duplicate. "
+"Please check your input "
+"and try again."
+msgstr ""
+
+#: php/admin-settings.php:1217
+msgid ""
+"Table Column position "
+"cannot be a negative "
+"number. Please check "
+"your input and try again."
+msgstr ""
+
+#: php/admin-settings.php:1218
+msgid ""
+"Table Column position "
+"cannot be a decimal "
+"number. Please check "
+"your input and try again."
+msgstr ""
+
+#: php/admin-settings.php:1219
+msgid ""
+"Table Column position "
+"cannot exceed total "
+"columns numbers. Please "
+"check your input and try "
+"again."
+msgstr ""
+
+#: php/admin-settings.php:1220
+msgid ""
+"Delete this Datatable?"
 msgstr ""
 
 #: php/adore-datatables.php:58
