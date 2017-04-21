@@ -55,7 +55,7 @@ function fn_adore_fetch_adt($atts) {
     } else if ( !empty($adt_id) && is_numeric($adt_id) ) {
         $str_sql = "SELECT * FROM adore_datatable_settings WHERE adt_id=$adt_id AND adt_blog_id=". get_current_blog_id();
     } else {
-        wp_die('<div class="error">'.__('Error! You have not provided Adore Datatable ID or Name in your shortcode tag.','adt').'</div>');
+        return ;
     }
 
     $adt_datatable_dataset = $wpdb->get_row($str_sql);
@@ -178,7 +178,7 @@ function fn_adore_datatables_maker($atts) {
     }
     $str_table_id = ' id="' . $html_table_id . '"';
     $str_table = '
-		<table ' . $str_table_id . ' class="' . $html_table_class . '" cellspacing="0" width="100%">
+	<table ' . $str_table_id . ' class="' . $html_table_class . '" cellspacing="0" width="100%">
 			<thead>
 				<tr>
 
