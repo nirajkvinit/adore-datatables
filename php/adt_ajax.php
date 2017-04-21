@@ -1,12 +1,15 @@
 <?php
+
 /**
  * Complete rewrite by lenasterg
  * @global type $wpdb
  */
 function fn_adt_ajax() {
     global $wpdb;
-    $request = $_REQUEST;
 
+    $request = $_REQUEST;
+    $bindings = array();
+    
     $adt_datatable_dataset = fn_adore_fetch_adt(array('table' => $request['adt']));
 
 
@@ -19,7 +22,7 @@ function fn_adt_ajax() {
 
     $sLimit = adoreSSP::limit($request);
     $sOrder = adoreSSP::order($request , $aColumns);
-    $sWhere = adoreSSP::filter($request , $aColumns);
+    $sWhere = adoreSSP::filter($request , $aColumns , $bindings);
 
 
     /*
@@ -47,9 +50,9 @@ function fn_adt_ajax() {
      * Output
      */
     $output = array(
-        "draw" =>  isset($request['draw']) ?
-            intval($request['draw']) :
-            0 ,
+        "draw" => isset($request['draw']) ?
+        intval($request['draw']) :
+        0 ,
         "recordsTotal" => $iTotal ,
         "recordsFiltered" => $iFilteredTotal ,
         "data" => array()

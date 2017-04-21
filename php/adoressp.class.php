@@ -93,7 +93,7 @@ class adoreSSP {
      * @todo fix to match orderOld
      */
     static function order($request , $columns) {
-          $order = '';
+        $order = '';
 
         if ( isset($request['order']) && count($request['order']) ) {
             $orderBy = array();
@@ -123,32 +123,69 @@ class adoreSSP {
         return $order;
     }
 
-
-     /**
+    /**
      *
      * @param array $request
      * @param array $columns
-     * @todo match the oldfilter
-     * @version 1, lenasterg
+     * @todo respect the column type
+     * @version 2, lenasterg
      */
-    static function filter($request , $columns) {
+    static function filter($request , $columns , $bindings) {
 
-        $sWhere = "";
-      if ( isset($request['search']) && $request['search']['value'] != '' ) {
+        $globalSearch = array();
+        $columnSearch = array();
+
+        if ( isset($request['search']) && $request['search']['value'] != '' ) {
             $str = $request['search']['value'];
-            $sWhere = "WHERE (";
-            for ( $i = 0; $i < count($columns); $i++ ) {
-                $sWhere .= "`" . $columns[$i] . "` LIKE '%" . esc_sql($str) . "%' OR ";
+            $strings = array_filter(array_unique(mb_split(' ' , $str)));
+
+            for ( $i = 0 , $ien = count($request['columns']); $i < $ien; $i++ ) {
+                $column = $request['columns'][$i];
+                if ( $column['searchable'] == 'true' ) {
+                    $globalSearchStrings=array();
+                    foreach ( $strings as $string ) {
+                        $globalSearchStrings[]= "`" . $columns[$i] . "` LIKE '%" . esc_sql($string) . "%'";
+                    }
+                    $globalSearch[] =  '(' . implode(' AND ' , $globalSearchStrings) . ')';
+                }
             }
-            $sWhere = substr_replace($sWhere , "" , -3);
-            $sWhere .= ")";
+
         }
 
-        return $sWhere;
+        // Individual column filtering
+        if ( isset($request['columns']) ) {
+            for ( $i = 0 , $ien = count($request['columns']); $i < $ien; $i++ ) {
+                $column = $request['columns'][$i];
+
+                $str = $column['search']['value'];
+                $strings = array_filter(array_unique(mb_split(' ' , $str)));
+                if ( $column['searchable'] == 'true' && $str != '' ) {
+                    $columnSearch[] = "`" . $columns[$i] . "` LIKE " . esc_sql($str);
+                }
+            }
+        }
+
+        // Combine the filters into a single string
+        $where = '';
+
+        if ( count($globalSearch) ) {
+            $where = '(' . implode(' OR ' , $globalSearch) . ')';
+        }
+
+        if ( count($columnSearch) ) {
+            $where = $where === '' ?
+                implode(' AND ' , $columnSearch) :
+                $where . ' AND ' . implode(' AND ' , $columnSearch);
+        }
+
+        if ( $where !== '' ) {
+            $where = 'WHERE ' . $where;
+        }
+
+        return $where;
     }
 
-
- /**
+    /**
      * Ordering
      *
      * Construct the ORDER BY clause for server-side processing SQL query
@@ -259,8 +296,6 @@ class adoreSSP {
 
         return $where;
     }
-
-
 
     /**
      * Perform the SQL queries needed for an server-side processing requested,
