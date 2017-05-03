@@ -15,6 +15,12 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 
 4. In any page or post use the shortcode [adt_demo_datatables] to load the demo datatable
 
+# Plugin Requirements
+
+1. Plugin dynamically creates some configuration files in the plugin directory. Make sure the plugin directory is writable by the webserver process.
+
+2. PHP version : 5.5+ (Reported by Paul Agner)
+
 
 # Create and Manage Adore Datatables from Wordpress Admin Panel
 
