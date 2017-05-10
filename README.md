@@ -1,11 +1,11 @@
 # adore-datatables
-# Adore Datatables (Wordpress and Datatables Integration Project).
+## Adore Datatables (Wordpress and Datatables Integration Project).
 
 Using this wordpress plugin, you can use jQuery Datatables in your wordpress pages/posts.
 
-# Current Version: 0.0.9 (Fully functional Beta release)
+### Current Version: 0.0.9 (Fully functional Beta release)
 
-# Installation Guide
+## Installation Guide
 
 1. Download the plugin.
 
@@ -15,14 +15,14 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 
 4. In any page or post use the shortcode [adt_demo_datatables] to load the demo datatable
 
-# Plugin Requirements
+## Plugin Requirements
 
 1. Plugin dynamically creates some configuration files in the plugin directory. Make sure the plugin directory is writable by the webserver process.
 
 2. PHP version : 5.5+ (Reported by Paul Agner)
 
 
-# Create and Manage Adore Datatables from Wordpress Admin Panel
+## Create and Manage Adore Datatables from Wordpress Admin Panel
 
 1. Create a new Adore Datatable by following the instruction in the "Manage" tab of "Adore Datatables" menu in Wordpress Admin Control Panel.
 
@@ -31,13 +31,13 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 3. Shortcode will be similar to [adore-datatables id="1"] or [adore-datatables table="table_name"]
 
 
-# Note
+## Note
 
 1. Current plugin is still under Testing. Need to implement many features. Please checkout Project Roadmap for more details.
 
 2. Some features are under development, so you may find them missing. Please create a ticket in the Project's github page.
 
-# Features
+## Features
 
 * Create Datatable based on your existing database tables/views
 
@@ -48,6 +48,6 @@ Using this wordpress plugin, you can use jQuery Datatables in your wordpress pag
 * Add the dynamically generated datatable to anywhere in the page/post by shortcode.
 
 
-# Features Requests
+## Features Requests
 
 * Please create a ticket in the github page to request for features.
